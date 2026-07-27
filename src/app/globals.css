@@ -1,11 +1,31 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   3 Star Decoration — design tokens (swap this block to re-brand).
+   Colours, type, and rhythm all resolve from here; components never hard-code
+   a hex or a font. When the client's real logo + brand colours arrive, only
+   these values change.
+   ========================================================================== */
 @theme {
-  --color-ivory: #f7f4ef;
-  --color-charcoal: #14110f;
-  --color-accent: #b08d57;
+  /* Palette — warm gallery neutrals + a single champagne-gold accent */
+  --color-ivory: #f6f2ea; /* page canvas */
+  --color-porcelain: #fdfbf7; /* raised surfaces */
+  --color-charcoal: #17130f; /* primary ink */
+  --color-espresso: #211913; /* dark sections */
+  --color-stone: #857a6c; /* secondary text */
+  --color-line: #e4dbcd; /* hairline dividers */
+  --color-accent: #b0894f; /* champagne gold */
+  --color-accent-deep: #8f6c39;
 
-  --spacing-section: 8rem;
+  /* Type */
+  --font-display: var(--font-fraunces), "Times New Roman", serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  /* Rhythm */
+  --spacing-section: 7.5rem;
+
+  /* Motion */
+  --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
@@ -20,7 +40,50 @@ html {
 body {
   background: var(--color-ivory);
   color: var(--color-charcoal);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-ivory);
+}
+
+/* Editorial primitives ----------------------------------------------------- */
+
+/* Small letter-spaced label used for eyebrows / section kickers */
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-accent-deep);
+}
+
+/* Display headings: high-contrast serif, tight leading, optical sizing */
+.display {
+  font-family: var(--font-display);
+  font-weight: 350;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  font-optical-sizing: auto;
+}
+
+/* Line-mask used for the hero reveal: child <span> slides up from behind */
+.line-mask {
+  display: block;
+  overflow: hidden;
+}
+.line-mask > span {
+  display: block;
+  will-change: transform;
+}
+
+/* Thin gold rule */
+.rule-gold {
+  height: 1px;
+  background: linear-gradient(90deg, var(--color-accent), transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

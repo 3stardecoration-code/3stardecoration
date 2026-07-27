@@ -1,22 +1,28 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
-import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 
-const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-display", display: "swap" });
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap",
+  axes: ["opsz"],
+});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "3 Star Decoration",
-  description: "Premium event decoration — weddings, receptions, and celebrations.",
+  title: {
+    default: "3 Star Decoration — Premium Event Decoration",
+    template: "%s | 3 Star Decoration",
+  },
+  description:
+    "Weddings, receptions, engagements, and celebrations, beautifully designed. Cinematic, luxury event decoration by 3 Star Decoration.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${inter.variable}`}>
-      <body>
-        <SmoothScrollProvider>{children}</SmoothScrollProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

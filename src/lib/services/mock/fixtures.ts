@@ -34,7 +34,7 @@ const DEMO_COLORS: Record<string, string> = {
   "stage-01": "#a17b59", "stage-02": "#6d5042", "stage-03": "#786957", "stage-04": "#813470", "stage-05": "#5c226a",
   "floral-01": "#57524e", "floral-02": "#8c6d49", "floral-03": "#584f3d", "floral-04": "#816948", "floral-05": "#d2c0af", "floral-06": "#9eae8c",
   "corporate-01": "#6e417d", "corporate-02": "#2f1e34", "corporate-03": "#6a5441", "corporate-04": "#6c6e6d",
-  "hero-01": "#5a4e42", "hero-02": "#a47d5a",
+  "hero-01": "#b16c39", "hero-02": "#a47d5a",
 };
 
 // Build a MediaAsset that points at a /demo-assets image (temporary demo content).
