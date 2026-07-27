@@ -147,8 +147,8 @@ erDiagram
 
   %% media_assets as the central hub
   media_assets ||--o{ categories : "cover (nullable)"
-  media_assets ||--o{ hero_banners : used_by
-  media_assets ||--o{ projects : cover
+  media_assets ||--o{ hero_banners : "used_by (nullable)"
+  media_assets ||--o{ projects : "cover (nullable)"
   media_assets ||--o{ projects : "og (nullable)"
   media_assets ||--o{ project_media : used_by
   media_assets ||--o{ gallery_items : used_by
