@@ -16,6 +16,7 @@ describe("parseEnv", () => {
     expect(parseEnv(valid).NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME).toBe("demo");
   });
   it("throws when a required var is missing", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- destructure to omit the key
     const { CLOUDINARY_API_SECRET, ...missing } = valid;
     expect(() => parseEnv(missing)).toThrow(/CLOUDINARY_API_SECRET/);
   });

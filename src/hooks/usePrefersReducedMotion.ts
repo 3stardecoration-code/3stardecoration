@@ -1,16 +1,24 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 const QUERY = "(prefers-reduced-motion: reduce)";
 
+function subscribe(callback: () => void): () => void {
+  const mql = window.matchMedia(QUERY);
+  mql.addEventListener("change", callback);
+  return () => mql.removeEventListener("change", callback);
+}
+
+function getSnapshot(): boolean {
+  return window.matchMedia(QUERY).matches;
+}
+
+// Server render has no matchMedia; default to "no preference" and let the
+// client resync on hydration via useSyncExternalStore's subscribe/getSnapshot.
+function getServerSnapshot(): boolean {
+  return false;
+}
+
 export function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const mql = window.matchMedia(QUERY);
-    setReduced(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, []);
-  return reduced;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
