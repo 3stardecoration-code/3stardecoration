@@ -2,9 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Stand up the 3 Star Decoration codebase foundation — a Next.js App Router app with a fully migrated, RLS-secured Supabase Postgres schema, design tokens, motion providers, a Cloudinary image loader, typed env validation, observability hooks, seed data, CI, and baseline docs — all runnable and testable locally with no cloud accounts.
+**Goal:** Stand up the 3 Star Decoration codebase foundation — a Next.js App Router app with a fully migrated, RLS-secured Supabase Postgres schema, design tokens, motion providers, a Cloudinary image loader, typed env validation, observability hooks, seed data, CI, and baseline docs — developed directly against one dedicated hosted Supabase project.
 
-**Architecture:** Full-stack Next.js (App Router, TypeScript) in a single repo. Data lives in Supabase Postgres, developed locally via the Supabase CLI (Docker). All schema, RLS policies, predicate-baked public views, and seed data are versioned SQL migrations. Media is served through Cloudinary via a custom `next/image` loader. Env is validated at boot with zod. Everything ships with tests (Vitest) and a CI gate.
+**Architecture:** Full-stack Next.js (App Router, TypeScript) in a single repo. Data lives in a hosted Supabase Postgres project (no local Docker stack); the Supabase CLI (`npx supabase`) links to it and pushes migrations directly. All schema, RLS policies, predicate-baked public views, and seed data are versioned SQL migrations. Media is served through Cloudinary via a custom `next/image` loader. Env is validated at boot with zod. Everything ships with tests (Vitest) and a CI gate.
+
+**Workflow note (v1.1):** originally planned around a local Docker-based Supabase stack; changed to a hosted-project-only workflow per explicit direction — this is a single-developer production website, and a dedicated hosted Supabase project from day one keeps iteration simpler than maintaining a local containerized environment. Migrations, RLS, seed, and the RLS test all target the hosted project directly.
 
 **Tech Stack:** Next.js 15 (App Router) · TypeScript · Tailwind CSS v4 · GSAP + Lenis · `@supabase/supabase-js` + `@supabase/ssr` · Supabase CLI (local Postgres) · zod · Vitest + Testing Library · GitHub Actions.
 
@@ -12,12 +14,14 @@
 
 - **Spec of record:** `docs/superpowers/specs/2026-07-27-3-star-decoration-design.md` (v1.1). Every table/column/enum in Tasks 7–9 must match spec §4 and §18 exactly.
 - **Node:** ≥ 20.19 (local is 20.20). **Package manager:** npm. **No pnpm/yarn.**
-- **No cloud accounts in Phase 0.** Supabase runs locally via Docker; Cloudinary cloud name is a config value only (no account needed to build/test the loader); Vercel is Phase 6.
+- **Supabase is a hosted project from day one — no local Docker stack.** One dedicated Supabase project is created up front (see the Prerequisite section before Task 6); the CLI links to it and pushes migrations directly (`supabase db push`), never `supabase start`/`db reset`. Cloudinary cloud name is a config value only in Phase 0 (real account arrives Phase 3); Vercel is Phase 6.
+- **CLI-only credentials are not app env vars.** `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD` authenticate the `supabase` CLI for linking/migrations only — `src/lib/env.ts`'s schema never includes them, and they never go in `.env.local`'s app-facing block. Export them in your shell (or a separate untracked file) only for CLI use.
+- **A single hosted project doubles as the dev/test target.** Tests that touch the database (Task 8's RLS test) run directly against this one hosted project and must be fully self-cleaning (insert → assert → delete). This is an accepted simplicity tradeoff for a pre-launch, single-developer site; revisit with a properly isolated test project (or Supabase branching) before the site carries real customer data.
 - **Supabase CLI is a dev dependency**, invoked as `npx supabase` — never installed globally.
 - **Two orthogonal statuses:** `workflow_status` (draft|published|unpublished) ≠ `project_status` (upcoming|ongoing|completed). Never conflate.
 - **Soft delete everywhere it applies:** `deleted_at`/`deleted_by` on projects, services, galleries, media_assets, testimonials. Every public read excludes `deleted_at is not null` AND non-published rows.
 - **`audit_logs` is insert-only** — no update/delete policy for anyone.
-- **TDD:** write the failing test first where a task has testable logic; for scaffold/config tasks the verification command (build/lint/typecheck/`supabase db reset`) is the gate.
+- **TDD:** write the failing test first where a task has testable logic; for scaffold/config tasks the verification command (build/lint/typecheck/`supabase db push`) is the gate.
 - **Commit after every task.** Conventional Commit messages. All git commands use `git -C /Users/allwin1906/Documents/GitHub/3stardecoration` OR are run from the repo root (the shell resets cwd between sessions — always cd to the repo first).
 - **Repo root:** `/Users/allwin1906/Documents/GitHub/3stardecoration` (contains `.git` + `docs/` already; do not delete `docs/`).
 
@@ -583,15 +587,36 @@ git add -A && git commit -m "feat: Lenis smooth scroll + GSAP provider (reduced-
 
 ---
 
-## Task 6: Supabase local init + typed clients
+## Prerequisite (before Task 6): create the hosted Supabase project
+
+**This is the one step only you can do** — it requires your Supabase account and cannot be automated by an agent (no browser OAuth in this environment).
+
+1. Go to [supabase.com](https://supabase.com/dashboard) → **New Project**. Name it e.g. `3star-decoration`, pick a region close to your users, and set a **database password** (save it — you'll need it below).
+2. Once the project is provisioned, go to **Project Settings → API** and note:
+   - **Project URL** (`https://<ref>.supabase.co`)
+   - **anon public key**
+   - **service_role key** (secret)
+3. Go to **Project Settings → General** and note the **Reference ID** (the `<ref>` in the URL above).
+4. Go to your **account** (not project) → **Access Tokens** → generate a **Personal Access Token** (needed so the CLI can link/push without an interactive browser login).
+
+Hand back (or place directly into the files named below, if you'd rather not paste the service role key/token into chat):
+- `SUPABASE_PROJECT_REF` — the reference ID
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` — for `.env.local` (app runtime, validated by `src/lib/env.ts`)
+- `SUPABASE_ACCESS_TOKEN` — the personal access token (CLI auth only, not an app env var)
+- `SUPABASE_DB_PASSWORD` — the database password you set in step 1 (CLI auth only, not an app env var)
+
+---
+
+## Task 6: Supabase hosted project link + typed clients
 
 **Files:**
 - Create: `supabase/` (via `supabase init`), `src/lib/supabase/browser.ts`, `src/lib/supabase/server.ts`, `src/lib/supabase/service.ts`
+- Modify: `package.json` (`db:*` scripts, updated for the hosted workflow)
 
 **Interfaces:**
 - Produces: `createBrowserClient()`, `createServerClient()` (async, cookie-aware), `createServiceClient()` (server-only).
 
-> Prerequisite: **Docker Desktop must be running** for `supabase start`/`db reset` (Tasks 6, 8, 9).
+> Prerequisite: the hosted Supabase project above must already exist, with `SUPABASE_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`, and `SUPABASE_DB_PASSWORD` available in your shell environment (exported, or in a separate untracked file you `source`) — never committed. No Docker required for this task or any later one.
 
 - [ ] **Step 1: Install Supabase deps (CLI as dev dep)**
 
@@ -601,23 +626,47 @@ npm i @supabase/supabase-js @supabase/ssr
 npm i -D supabase
 ```
 
-- [ ] **Step 2: Initialize the Supabase project**
+- [ ] **Step 2: Initialize the local Supabase config (no Docker involved — this just scaffolds `supabase/`)**
 
 ```bash
 cd /Users/allwin1906/Documents/GitHub/3stardecoration
 npx supabase init   # answer "N" to generating VS Code settings if prompted
 ```
 
-- [ ] **Step 3: Start the local stack and capture keys**
+- [ ] **Step 3: Link to the hosted project (non-interactive)**
 
 ```bash
 cd /Users/allwin1906/Documents/GitHub/3stardecoration
-npx supabase start   # prints API URL, anon key, service_role key
+SUPABASE_ACCESS_TOKEN="$SUPABASE_ACCESS_TOKEN" npx supabase link \
+  --project-ref "$SUPABASE_PROJECT_REF" \
+  --password "$SUPABASE_DB_PASSWORD"
 ```
 
-Copy the printed `API URL`, `anon key`, and `service_role key` into `.env.local` (create it from `.env.example`).
+Expected: "Finished supabase link.". This writes the linked project ref into `supabase/.temp/` (gitignored — already covered by Task 1's `.gitignore` additions).
 
-- [ ] **Step 4: Implement `src/lib/supabase/browser.ts`**
+- [ ] **Step 4: Populate `.env.local` from the hosted project's Settings → API values**
+
+```bash
+cd /Users/allwin1906/Documents/GitHub/3stardecoration
+cp .env.example .env.local
+```
+
+Edit `.env.local` and fill in `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` with the real values from the Prerequisite step. Leave the Cloudinary values as placeholders (Phase 3). `SUPABASE_ACCESS_TOKEN`/`SUPABASE_DB_PASSWORD` do **not** go in this file — they're CLI-only (see Global Constraints).
+
+Also update `.env.example`'s stale comment (written in Task 3, before this workflow changed) from `# Supabase (local defaults from \`npx supabase start\`)` to `# Supabase (hosted project — see Project Settings → API in the dashboard)`, and change the three example values below it from `http://127.0.0.1:54321` / `<from \`npx supabase start\` output>` to generic hosted-style placeholders (e.g. `https://<ref>.supabase.co` and `<from Project Settings → API>`).
+
+- [ ] **Step 5: Update `package.json`'s `db:*` scripts for the hosted workflow** (replace the four `db:*` lines Task 1 added)
+
+```json
+"db:link": "supabase link",
+"db:push": "supabase db push --yes",
+"db:diff": "supabase db diff",
+"db:seed": "psql \"$SUPABASE_DB_URL\" -f supabase/seed.sql"
+```
+
+> `db:start`/`db:stop`/`db:reset` are removed — there is no local stack to start/stop/reset. `db:seed` expects a `SUPABASE_DB_URL` env var (the hosted project's direct Postgres connection string, from Settings → Database → Connection string, URI format, port 5432) exported in your shell — not committed, not in `.env.local`.
+
+- [ ] **Step 6: Implement `src/lib/supabase/browser.ts`**
 
 ```ts
 import { createBrowserClient as _create } from "@supabase/ssr";
@@ -628,7 +677,7 @@ export function createBrowserClient() {
 }
 ```
 
-- [ ] **Step 5: Implement `src/lib/supabase/server.ts`**
+- [ ] **Step 7: Implement `src/lib/supabase/server.ts`**
 
 ```ts
 import { createServerClient as _create } from "@supabase/ssr";
@@ -652,7 +701,7 @@ export async function createServerClient() {
 }
 ```
 
-- [ ] **Step 6: Implement `src/lib/supabase/service.ts`**
+- [ ] **Step 8: Implement `src/lib/supabase/service.ts`**
 
 ```ts
 import "server-only";
@@ -670,12 +719,12 @@ export function createServiceClient() {
 cd /Users/allwin1906/Documents/GitHub/3stardecoration && npm i server-only
 ```
 
-- [ ] **Step 7: Typecheck + commit**
+- [ ] **Step 9: Typecheck + commit**
 
 Run: `cd /Users/allwin1906/Documents/GitHub/3stardecoration && npm run typecheck`
 
 ```bash
-git add -A && git commit -m "feat: supabase local init + typed browser/server/service clients"
+git add -A && git commit -m "feat: link hosted Supabase project + typed browser/server/service clients"
 ```
 
 ---
@@ -1004,10 +1053,10 @@ create trigger homepage_sections_updated before update on homepage_sections
   for each row execute function set_updated_at();
 ```
 
-- [ ] **Step 5: Apply migrations (fails loudly on any SQL error)**
+- [ ] **Step 5: Apply migrations to the hosted project (fails loudly on any SQL error)**
 
-Run: `cd /Users/allwin1906/Documents/GitHub/3stardecoration && npx supabase db reset`
-Expected: "Applying migration ..." for 0001–0004 with no errors; finishes with "Finished supabase db reset".
+Run: `cd /Users/allwin1906/Documents/GitHub/3stardecoration && npx supabase db push --yes`
+Expected: "Applying migration ..." for 0001–0004 with no errors. (Requires the project already linked via Task 6, Step 3.)
 
 - [ ] **Step 6: Commit**
 
@@ -1146,8 +1195,8 @@ grant select on media_usage to authenticated;
 
 - [ ] **Step 2: Apply — expect success**
 
-Run: `cd /Users/allwin1906/Documents/GitHub/3stardecoration && npx supabase db reset`
-Expected: migration 0005 applies with no errors.
+Run: `cd /Users/allwin1906/Documents/GitHub/3stardecoration && npx supabase db push --yes`
+Expected: migration 0005 applies to the hosted project with no errors.
 
 - [ ] **Step 3: Write the RLS integration test `tests/db/rls.test.ts`**
 
@@ -1155,8 +1204,10 @@ Expected: migration 0005 applies with no errors.
 import { describe, it, expect, beforeAll } from "vitest";
 import { createClient } from "@supabase/supabase-js";
 
-// Local supabase defaults. If your `supabase start` printed different keys, update .env.local
-// and read them here via process.env.
+// These env vars come from the hosted Supabase project's Settings → API page
+// (populated into .env.local in Task 6, Step 4). There is no local stack —
+// this test runs directly against the hosted project and must be fully
+// self-cleaning (see Global Constraints).
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -1217,10 +1268,7 @@ export default defineConfig(({ mode }) => ({
 }));
 ```
 
-- [ ] **Step 5: Run the RLS test** (requires `supabase start` running + Task 9 seed applied; run after Task 9, or seed now with `npx supabase db reset`)
-
-Run: `cd /Users/allwin1906/Documents/GitHub/3stardecoration && npx vitest run tests/db/rls.test.ts`
-Expected: 3 passed.
+- [ ] **Step 5: Do not run this test yet** — its `beforeAll` looks up the `wedding` category by slug, which only exists once Task 9's seed data is applied. Proceed to Task 9; its Step 4 runs this test.
 
 - [ ] **Step 6: Commit**
 
@@ -1240,7 +1288,7 @@ git add -A && git commit -m "feat(db): indexes, public views, usage view, and RL
 - Consumes: schema from Tasks 7–8.
 - Produces: 7 categories, default homepage_sections, a site_settings singleton, a demo published project with media (so public views + Phase 1 have data).
 
-- [ ] **Step 1: Write `supabase/seed.sql`**
+- [ ] **Step 1: Write `supabase/seed.sql`** (idempotent — safe to re-run against the single hosted project without duplicating rows, using `on conflict do nothing` and an existence guard for the demo project)
 
 ```sql
 -- Categories (spec §4.2)
@@ -1251,7 +1299,8 @@ insert into categories (name, slug, sort_order) values
   ('Birthday','birthday',4),
   ('Baby Shower','baby-shower',5),
   ('Corporate','corporate',6),
-  ('Stage','stage',7);
+  ('Stage','stage',7)
+on conflict (slug) do nothing;
 
 -- Homepage builder default sections (spec §4.17)
 insert into homepage_sections (section_key, is_enabled, sort_order, is_featured) values
@@ -1260,7 +1309,8 @@ insert into homepage_sections (section_key, is_enabled, sort_order, is_featured)
   ('featured_services', true, 3, false),
   ('testimonials', true, 4, false),
   ('instagram', true, 5, false),
-  ('quote_cta', true, 6, false);
+  ('quote_cta', true, 6, false)
+on conflict (section_key) do nothing;
 
 -- Site settings singleton (real values supplied by the owner later)
 insert into site_settings (id, site_name, whatsapp_number, whatsapp_message_template,
@@ -1271,37 +1321,52 @@ values (true, '3 Star Decoration', '910000000000',
         '+91 00000 00000', 'hello@example.com', 'http://localhost:3000',
         '3 Star Decoration — Premium Event Decoration',
         'Weddings, receptions, and celebrations, beautifully designed.',
-        '{"instagram":"","facebook":"","youtube":""}');
+        '{"instagram":"","facebook":"","youtube":""}')
+on conflict (id) do nothing;
 
--- A demo image asset + published project so public views return data
-with img as (
-  insert into media_assets (source, secure_url, alt_text, title, width, height)
-  values ('cloudinary_image',
-          'https://res.cloudinary.com/demo/image/upload/sample.jpg',
-          'Elegant wedding stage decoration', 'Demo cover', 1600, 1067)
-  returning id
-)
-insert into projects (title, slug, category_id, event_type, summary, cover_media_asset_id,
-                      project_status, featured_on_homepage, workflow_status, published_at)
-select 'Ivory Garden Wedding', 'ivory-garden-wedding',
-       (select id from categories where slug='wedding'),
-       'Wedding', 'A soft ivory-and-gold garden ceremony.',
-       (select id from img), 'completed', true, 'published', now();
+-- A demo image asset + published project so public views return data.
+-- Guarded as a whole block so re-running this script never creates a second
+-- demo media asset once the project (which references it) already exists.
+do $$
+declare
+  demo_media_id uuid;
+begin
+  if not exists (select 1 from projects where slug = 'ivory-garden-wedding') then
+    insert into media_assets (source, secure_url, alt_text, title, width, height)
+    values ('cloudinary_image',
+            'https://res.cloudinary.com/demo/image/upload/sample.jpg',
+            'Elegant wedding stage decoration', 'Demo cover', 1600, 1067)
+    returning id into demo_media_id;
+
+    insert into projects (title, slug, category_id, event_type, summary, cover_media_asset_id,
+                          project_status, featured_on_homepage, workflow_status, published_at)
+    values ('Ivory Garden Wedding', 'ivory-garden-wedding',
+            (select id from categories where slug = 'wedding'),
+            'Wedding', 'A soft ivory-and-gold garden ceremony.',
+            demo_media_id, 'completed', true, 'published', now());
+  end if;
+end $$;
 ```
 
-- [ ] **Step 2: Reset with seed — expect success**
+- [ ] **Step 2: Apply the seed to the hosted project via `psql`** (there is no local `db reset` shortcut for a hosted project — `supabase db push` only applies migrations, never `seed.sql`, against a remote project)
 
-Run: `cd /Users/allwin1906/Documents/GitHub/3stardecoration && npx supabase db reset`
-Expected: applies migrations then runs `seed.sql`; no errors.
+Find the connection string in the Supabase dashboard: **Project Settings → Database → Connection string** (URI format, direct connection, port 5432 — not the pooler). Export it, then run:
+
+```bash
+cd /Users/allwin1906/Documents/GitHub/3stardecoration
+export SUPABASE_DB_URL="postgresql://postgres:<password>@db.<ref>.supabase.co:5432/postgres"
+psql "$SUPABASE_DB_URL" -f supabase/seed.sql
+```
+
+Expected: no errors. If `psql` is not installed locally, paste `supabase/seed.sql`'s contents into the Supabase dashboard's **SQL Editor** and run it there instead.
 
 - [ ] **Step 3: Verify seed via anon view**
 
 Run:
 ```bash
 cd /Users/allwin1906/Documents/GitHub/3stardecoration
-# Local Supabase DB uses stable defaults: host 127.0.0.1, port 54322, user/pass postgres
-psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -c "select slug from public_projects;"
-# If psql is not installed, skip this — Step 4's RLS test is the authoritative verification.
+psql "$SUPABASE_DB_URL" -c "select slug from public_projects;"
+# If psql is not installed, run the same query in the Supabase dashboard's SQL Editor instead.
 ```
 Expected: one row, `ivory-garden-wedding`.
 
@@ -1549,7 +1614,7 @@ jobs:
       - run: npx vitest run tests/env.test.ts tests/tokens.test.ts tests/reduced-motion.test.ts tests/cloudinary-loader.test.ts tests/report-error.test.ts tests/smoke.test.ts
       - run: npm run build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ci
           SUPABASE_SERVICE_ROLE_KEY: ci
           NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ci
@@ -1557,18 +1622,31 @@ jobs:
           CLOUDINARY_API_SECRET: ci
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
 
-  db-migrations:
+  db-migrate:
+    # Applies pending migrations to the hosted Supabase project. Runs only on
+    # push to main (never on pull_request) so the single hosted project's
+    # schema changes happen deliberately at merge time, not on every PR push.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - run: supabase db start
-      - run: supabase db reset
+      - run: supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      - run: supabase db push --yes
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
 ```
 
-> The DB/RLS integration test (`tests/db/rls.test.ts`) needs a live local stack, so it is excluded from the unit-test step and covered by `supabase db reset` in `db-migrations`. Wiring it into CI against the started stack is a Phase 1 refinement.
+> **Manual one-time setup required:** add three repo secrets under **Settings → Secrets and variables → Actions**: `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD` (same values from the Prerequisite before Task 6). Until added, `db-migrate` fails on push to main — expected for now; migrations can also be pushed manually via `npm run db:push` from a linked developer machine. Adding these secrets is something only you can do (repo admin access) — flag when done, or push migrations manually in the meantime.
+>
+> The DB/RLS integration test (`tests/db/rls.test.ts`) targets the hosted project directly and needs real Supabase credentials (not the CI placeholder strings used for the build step above), so it stays a manually-run check for Phase 0 (Task 8, Step 5 / Task 9, Step 4) rather than part of this automated pipeline. Wiring a safe, CI-runnable version — e.g. via Supabase preview branching — is deferred to a later phase.
 
 - [ ] **Step 2: Write `docs/folder-structure.md`** — document the tree from this plan's "File Structure" section plus a one-line purpose per top-level dir (`src/app`, `src/lib`, `src/components`, `supabase`, `tests`, `docs`). Keep it current as the app grows.
 
@@ -1600,8 +1678,9 @@ git add -A && git commit -m "ci: add pipeline; docs: folder structure, env vars,
 ## Phase 0 Definition of Done
 
 - [ ] `npm run lint && npm run typecheck && npm test && npm run build` all pass.
-- [ ] `npx supabase db reset` applies all 5 migrations + seed with no errors.
-- [ ] `tests/db/rls.test.ts` passes against the local stack (anon blocked from writes, sees only published rows, partial-unique slug reuse works).
+- [ ] `npx supabase db push --yes` applies all 5 migrations to the linked hosted project with no errors.
+- [ ] `psql "$SUPABASE_DB_URL" -f supabase/seed.sql` (or the Supabase SQL Editor) applies `seed.sql` with no errors, and is safe to re-run (idempotent).
+- [ ] `tests/db/rls.test.ts` passes against the hosted project (anon blocked from writes, sees only published rows, partial-unique slug reuse works).
 - [ ] `GET /api/health` returns `{"status":"ok"}`.
 - [ ] CI is green on push.
 - [ ] `docs/folder-structure.md`, `docs/environment-variables.md`, `docs/database-er-diagram.md` exist and match the code.
