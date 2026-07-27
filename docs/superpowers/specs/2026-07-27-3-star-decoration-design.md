@@ -1,6 +1,6 @@
 # 3 Star Decoration — Design Specification
 
-**Status:** Frozen (v1) · **Date:** 2026-07-27
+**Status:** Frozen (v1.1) · **Date:** 2026-07-27
 **Product:** Premium, cinematic event-decoration portfolio website + admin CMS
 **Repo:** `3stardecoration` · **Spec owner:** ALLWIN E
 
@@ -22,11 +22,13 @@ Blog · Packages & Pricing · Online Booking · Payment Gateway · Customer Dash
 ### Quality targets (Lighthouse, production)
 | Metric | Target |
 |---|---|
-| Performance | ≥ 95 |
-| SEO | 100 (Lighthouse caps at 100) |
-| Accessibility | ≥ 95 |
-| Best Practices | ≥ 95 |
-| Layout shift (CLS) | ≈ 0, no visible shifts |
+| Lighthouse Performance | ≥ 95 |
+| Lighthouse SEO | 100 |
+| Lighthouse Accessibility | ≥ 95 |
+| Lighthouse Best Practices | ≥ 95 |
+| First Contentful Paint (FCP) | < 1.8 s |
+| Largest Contentful Paint (LCP) | < 2.5 s |
+| Cumulative Layout Shift (CLS) | < 0.1 (no visible shifts) |
 | Motion | 60 FPS, `prefers-reduced-motion` honored |
 
 Also required: pixel-perfect responsiveness, fast initial load, professional & maintainable code.
@@ -105,11 +107,13 @@ Conventions: all tables `id uuid pk default gen_random_uuid()`, `created_at time
 Seeded: Wedding, Reception, Engagement, Birthday, Baby Shower, Corporate, Stage.
 
 ### 4.3 `hero_banners`
-`media_asset_id`, `eyebrow`, `title`, `subtitle`, `cta_label`, `cta_href`, `sort_order`, **`workflow_status`** (draft\|published\|unpublished), `published_at`.
+`media_asset_id`, `eyebrow`, `title`, `subtitle`, `cta_label`, `cta_href`, `sort_order`, **`layout_type`** (fullscreen_video \| fullscreen_image \| split \| carousel), **`workflow_status`** (draft\|published\|unpublished), `published_at`.
+> `layout_type` lets the admin switch hero presentation without code (see §18.3). Carousel = multiple active hero_banners rendered as a sequence.
 
 ### 4.4 `projects` (portfolio)
-`title`, `slug`, `category_id → categories`, `event_type`, `summary`, `description` (sanitized HTML), `cover_media_asset_id`, `client_name` (nullable), `location`, `event_date`, `completion_date`, **`project_status`** (upcoming\|ongoing\|completed — lifecycle badge), **`featured_on_homepage`** bool, `sort_order`, **`workflow_status`** (draft\|published\|unpublished), `published_at`, `meta_title`, `meta_description`, `og_media_asset_id`, `auto_seo_generated` bool, `deleted_at`, `deleted_by`.
+`title`, `slug`, `category_id → categories`, `event_type`, `summary`, `description` (sanitized HTML), `cover_media_asset_id`, `client_name` (nullable), `location`, `event_date`, `completion_date`, **`project_status`** (upcoming\|ongoing\|completed — lifecycle badge), **`featured_on_homepage`** bool, `sort_order`, **`workflow_status`** (draft\|published\|unpublished), `published_at`, `meta_title`, `meta_description`, `og_media_asset_id`, `auto_seo_generated` bool, **`robots_index`** bool (default true), **`robots_follow`** bool (default true), `deleted_at`, `deleted_by`.
 
+> **Cover image** is `cover_media_asset_id` — an explicit, admin-chosen asset (never auto-picked from the gallery). It drives the Portfolio listing card, Homepage Featured Works, the Open Graph preview, and the SEO thumbnail (see §18.1).
 > Two orthogonal statuses by design: `workflow_status` = publish lifecycle; `project_status` = event lifecycle shown as a badge.
 
 ### 4.5 `project_media`
@@ -133,7 +137,7 @@ Galleries **only reference** Media Library assets — never duplicate media. Exa
 `business_phone`, `whatsapp_number`, `whatsapp_message_template`, `business_email`, `address`, `google_map_embed`, `social_links` jsonb, `homepage_content` jsonb (hero fallback copy, section headings, about blurb, stats), `ga4_measurement_id`, `gsc_verification_token`, `canonical_base_url`, `site_name`, `default_meta_title`, `default_meta_description`, `default_og_media_asset_id`, `updated_at`, `updated_by`.
 
 ### 4.11 `seo_meta` (per-route overrides)
-`route_key` (unique: home\|portfolio\|services\|about\|contact\|quote…), `meta_title`, `meta_description`, `og_media_asset_id`, `canonical` (nullable).
+`route_key` (unique: home\|portfolio\|services\|about\|contact\|quote…), `meta_title`, `meta_description`, `og_media_asset_id`, `canonical` (nullable), **`robots_index`** bool (default true), **`robots_follow`** bool (default true). Per-page and per-project index/follow control (§18.7).
 
 ### 4.12 `legal_pages`
 `slug` (privacy\|terms), `title`, `body` (sanitized HTML), `updated_at`, `updated_by`.
@@ -149,6 +153,9 @@ Galleries **only reference** Media Library assets — never duplicate media. Exa
 
 ### 4.16 Derived: `usage_count`
 A SQL **view** aggregating references to each `media_asset` across: `project_media`, `gallery_items`, `hero_banners.media_asset_id`, `projects.cover_media_asset_id`/`og_media_asset_id`, `services.media_asset_id`/`og_media_asset_id`, `testimonials.media_asset_id`, `categories.cover_media_asset_id`, `seo_meta.og_media_asset_id`, `site_settings.default_og_media_asset_id`, `admin_profiles.avatar_media_asset_id`. The Media Library reads `usage_count` from this view.
+
+### 4.17 `homepage_sections` (Homepage Builder)
+`section_key` (unique: hero \| featured_works \| featured_services \| testimonials \| instagram \| quote_cta \| …), `is_enabled` bool, `sort_order` int, `is_featured` bool, `config` jsonb (per-section options), `updated_at`, `updated_by`. Powers the Homepage Builder (§18.2): enable/disable, reorder, and mark featured — no code change. The Home page renders enabled sections in `sort_order`; seeded with sensible defaults.
 
 ---
 
@@ -358,3 +365,56 @@ CWV + a11y hardening; OG-image generation finalized; GSC/sitemap submission read
 10. **CSRF** = Server Actions + `allowedOrigins`; explicit handling for any mutating Route Handler.
 11. **next/image** = custom Cloudinary loader.
 12. **Referenced-media trashing** blocked; permanent delete purges Cloudinary.
+
+---
+
+## 18. Final Freeze Addendum (v1.1 — 2026-07-27)
+
+Ten refinements accepted after the v1 freeze. Architecture is now **frozen for implementation**.
+
+### 18.1 Portfolio cover selection
+Every project has an **explicit, admin-chosen** `cover_media_asset_id` (§4.4), separate from the gallery. Used for **Portfolio listing, Homepage Featured Works, Open Graph preview, and SEO thumbnail** — never auto-picked from the first gallery image. Publishing requires a cover (validation).
+
+### 18.2 Homepage Builder
+New **Homepage Builder** admin module backed by `homepage_sections` (§4.17): **enable/disable** sections, **reorder** (drag-and-drop, transactional bulk-reorder), **mark featured** — all without code. Home renders enabled sections in `sort_order`.
+
+### 18.3 Hero variations
+`hero_banners.layout_type` ∈ {`fullscreen_video`, `fullscreen_image`, `split`, `carousel`}. The admin switches hero type per banner; the Home hero renderer branches on `layout_type`. `carousel` sequences multiple published hero_banners. All variants honor the §8.3 loader + CLS rules.
+
+### 18.4 Gallery watermark — future-ready (not built)
+Media pipeline routes all transforms through Cloudinary, so an optional watermark overlay is a **Cloudinary transformation toggle** added later behind the existing delivery step. A reserved `site_settings.watermark_config` (jsonb, nullable) marks the extension point. No watermarking in v1.
+
+### 18.5 Backup & Export
+Admin **CSV export** for **Enquiries, Projects, Testimonials** (server-generated, streamed download, respects current filters). Full-database backup is future work; export functions are written behind an `Exporter` interface so new entities/formats (e.g. full JSON backup) drop in cleanly.
+
+### 18.6 Activity Dashboard
+The admin **Dashboard** (distinct from Analytics Overview §11) surfaces **Recent uploads** (media_assets), **Recent enquiries**, **Recently published projects**, and **Latest admin activity** (from `audit_logs` §4.14) — each a compact, linkable feed.
+
+### 18.7 Search-engine index control
+`robots_index` / `robots_follow` booleans on **`projects`**, **`services`**, and **`seo_meta`** (per-route) — §4.4, §4.7 note, §4.11. The Metadata API emits the correct `robots` directive per page/project; defaults are index+follow. Draft/unpublished content is always `noindex` regardless.
+
+> Note: `services.robots_index/robots_follow` are added alongside the §4.7 SEO fields in the migration.
+
+### 18.8 Performance budgets (frozen, measurable)
+FCP **< 1.8 s** · LCP **< 2.5 s** · CLS **< 0.1** · Lighthouse Performance **≥ 95** · SEO **100** · Accessibility **≥ 95** (§1). Enforced via a CI Lighthouse/CWV check in Phase 6; regressions fail the check.
+
+### 18.9 Error monitoring — future-ready (not built)
+All server errors flow through a single `reportError()` abstraction and a Next.js error boundary / `instrumentation` hook, so **Sentry** or **Better Stack** integrate by implementing one adapter — no refactor. No monitoring vendor wired in v1.
+
+### 18.10 Documentation deliverables
+Produced as part of the final deliverable, in `docs/`:
+| Doc | Produced in |
+|---|---|
+| Folder-structure documentation | Phase 0 (kept current) |
+| Environment-variables guide (`.env.example` + reference) | Phase 0 |
+| Database ER diagram | Phase 0 (after schema), refreshed as it evolves |
+| API documentation (Server Actions + Route Handlers) | Incrementally, Phases 3–5 |
+| Deployment guide (Vercel + Supabase + Cloudinary) | Phase 6 |
+| Admin user guide | Phase 6 |
+
+### 18.11 Phase-plan deltas
+- **Phase 3** adds: CSV **Exporter** interface + enquiries/projects/testimonials export; `reportError()` abstraction.
+- **Phase 4** adds: **Hero variations** (`layout_type` renderer + admin switch); per-project **index/follow** controls; cover-image-required publish validation.
+- **Phase 5** adds: **Homepage Builder** module; **Activity Dashboard** feeds; per-route index/follow in SEO Settings.
+- **Phase 6** adds: CWV/Lighthouse CI gate enforcing §18.8; **Deployment guide** + **Admin user guide**.
+- **Phase 0** adds: folder-structure doc, env-vars guide, ER diagram; reserved extension points (`watermark_config`, `reportError()`).
