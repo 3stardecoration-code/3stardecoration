@@ -1391,7 +1391,7 @@ git add -A && git commit -m "feat(db): seed categories, homepage sections, setti
 - Modify: `next.config.ts`
 
 **Interfaces:**
-- Produces: default-exported `cloudinaryLoader({ src, width, quality })` returning a transformed URL for Cloudinary public IDs and a pass-through URL for absolute non-Cloudinary URLs.
+- Produces: default-exported `cloudinaryLoader({ src, width, quality })` returning a transformed URL for Cloudinary public IDs, and a pass-through URL for absolute non-Cloudinary URLs and root-relative local paths (`/...` — `next.config.ts` sets `loader: "custom"` globally, so every `next/image` in the app routes through this loader, including local `/public` assets and mock fixtures used before Cloudinary is wired).
 
 - [ ] **Step 1: Write the failing test `tests/cloudinary-loader.test.ts`**
 
@@ -1420,6 +1420,11 @@ describe("cloudinaryLoader", () => {
     const src = "https://i.ytimg.com/vi/abc/hqdefault.jpg";
     expect(loader({ src, width: 400 })).toBe(src);
   });
+  it("passes through root-relative local paths (e.g. /public assets, mock fixtures)", async () => {
+    const { default: loader } = await import("@/lib/cloudinary-loader");
+    const src = "/demo/wedding-1.jpg";
+    expect(loader({ src, width: 400 })).toBe(src);
+  });
 });
 ```
 
@@ -1435,6 +1440,9 @@ type LoaderArgs = { src: string; width: number; quality?: number };
 export default function cloudinaryLoader({ src, width, quality }: LoaderArgs): string {
   // Absolute URLs (already-hosted images, YouTube/Vimeo thumbnails) pass through unchanged.
   if (/^https?:\/\//.test(src)) return src;
+  // Root-relative local paths (files under /public, mock fixtures used before
+  // Cloudinary is wired) also pass through — they are not Cloudinary public IDs.
+  if (src.startsWith("/")) return src;
   const cloud = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const params = ["f_auto", `q_${quality ?? "auto"}`, `w_${width}`].join(",");
   return `https://res.cloudinary.com/${cloud}/image/upload/${params}/${src}`;
@@ -1589,7 +1597,9 @@ git add -A && git commit -m "feat: observability abstraction, instrumentation ho
 - Create: `.github/workflows/ci.yml`, `docs/folder-structure.md`, `docs/environment-variables.md`, `docs/database-er-diagram.md`
 
 **Interfaces:**
-- Produces: a CI gate (lint + typecheck + unit tests + migration apply) and the three Phase-0 docs from spec §18.10.
+- Produces: a CI gate (lint + typecheck + unit tests + build) and the three Phase-0 docs from spec §18.10.
+
+> **Workflow note (v1.2):** Tasks 6–9 (hosted Supabase link, migrations, RLS, seed) are **deferred** — the client's Supabase project doesn't exist yet, so there is nothing to link, push, or push-migrations-to. There is no `db-migrate` job in this CI workflow. When the hosted project is created and Tasks 6–9 resume, re-add a `db-migrate` job gated to `push: branches: [main]` (see the git history of this file for the exact job spec that was removed here) plus the three repo secrets it needs.
 
 - [ ] **Step 1: Write `.github/workflows/ci.yml`**
 
@@ -1621,32 +1631,9 @@ jobs:
           CLOUDINARY_API_KEY: ci
           CLOUDINARY_API_SECRET: ci
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
-
-  db-migrate:
-    # Applies pending migrations to the hosted Supabase project. Runs only on
-    # push to main (never on pull_request) so the single hosted project's
-    # schema changes happen deliberately at merge time, not on every PR push.
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
-        with:
-          version: latest
-      - run: supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-      - run: supabase db push --yes
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
 ```
 
-> **Manual one-time setup required:** add three repo secrets under **Settings → Secrets and variables → Actions**: `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD` (same values from the Prerequisite before Task 6). Until added, `db-migrate` fails on push to main — expected for now; migrations can also be pushed manually via `npm run db:push` from a linked developer machine. Adding these secrets is something only you can do (repo admin access) — flag when done, or push migrations manually in the meantime.
->
-> The DB/RLS integration test (`tests/db/rls.test.ts`) targets the hosted project directly and needs real Supabase credentials (not the CI placeholder strings used for the build step above), so it stays a manually-run check for Phase 0 (Task 8, Step 5 / Task 9, Step 4) rather than part of this automated pipeline. Wiring a safe, CI-runnable version — e.g. via Supabase preview branching — is deferred to a later phase.
+> No `db-migrate` job for now — there is no hosted Supabase project to push migrations to. `tests/db/rls.test.ts` (Task 8) is not run by this CI and is not runnable at all until Tasks 6–9 resume with real credentials.
 
 - [ ] **Step 2: Write `docs/folder-structure.md`** — document the tree from this plan's "File Structure" section plus a one-line purpose per top-level dir (`src/app`, `src/lib`, `src/components`, `supabase`, `tests`, `docs`). Keep it current as the app grows.
 
@@ -1677,14 +1664,18 @@ git add -A && git commit -m "ci: add pipeline; docs: folder structure, env vars,
 
 ## Phase 0 Definition of Done
 
+**Tasks 6–9 (Supabase-credential-dependent) are DEFERRED**, not part of this DoD — see `.superpowers/sdd/progress.md`. They resume once the client's hosted Supabase project exists. The bullets below cover Tasks 1–5 and 10–12 only.
+
 - [ ] `npm run lint && npm run typecheck && npm test && npm run build` all pass.
+- [ ] `GET /api/health` returns `{"status":"ok"}`.
+- [ ] CI is green on push.
+- [ ] `docs/folder-structure.md`, `docs/environment-variables.md`, `docs/database-er-diagram.md` exist and match the code (the ER diagram documents the schema from Task 7's SQL, which was written and reviewed even though it hasn't been pushed to a live database yet).
+- [ ] Every task committed with a conventional-commit message.
+
+**Deferred, resumes when Supabase credentials arrive:**
 - [ ] `npx supabase db push --yes` applies all 5 migrations to the linked hosted project with no errors.
 - [ ] `psql "$SUPABASE_DB_URL" -f supabase/seed.sql` (or the Supabase SQL Editor) applies `seed.sql` with no errors, and is safe to re-run (idempotent).
 - [ ] `tests/db/rls.test.ts` passes against the hosted project (anon blocked from writes, sees only published rows, partial-unique slug reuse works).
-- [ ] `GET /api/health` returns `{"status":"ok"}`.
-- [ ] CI is green on push.
-- [ ] `docs/folder-structure.md`, `docs/environment-variables.md`, `docs/database-er-diagram.md` exist and match the code.
-- [ ] Every task committed with a conventional-commit message.
 
 ## Spec Coverage (Phase 0 slice)
 
