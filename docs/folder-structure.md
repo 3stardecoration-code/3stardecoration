@@ -10,9 +10,10 @@ that happens.
 │   └── workflows/          CI pipeline definitions (GitHub Actions)
 ├── docs/
 │   └── superpowers/        Planning artifacts: specs and dated implementation plans
-├── public/                 Static assets served as-is (favicons, placeholder SVGs)
-│   └── mock/               Placeholder images for the mock data service (currently README.md only —
-│                            the `/mock/*.jpg` files fixtures.ts references aren't added yet)
+├── public/                 Static assets served as-is (favicons, SVGs)
+│   └── demo-assets/        TEMPORARY royalty-free luxury-event photos (Unsplash) for the demo;
+│                            referenced by fixtures.ts via `/demo-assets/*.jpg`. Replaced by real
+│                            Cloudinary media once the CMS is connected (see the folder's README.md)
 ├── src/
 │   ├── app/                Next.js App Router: routes, layouts, API route handlers
 │   ├── components/         Shared React components (currently: providers)
@@ -38,7 +39,7 @@ that happens.
 | `.github/workflows` | CI workflow (`ci.yml`): lint, typecheck, unit tests, build on every push/PR. |
 | `docs` | Human-readable documentation: this file, environment variables, ER diagram, and the `superpowers/` planning specs & plans. |
 | `public` | Files served verbatim at the site root (icons, static SVGs). |
-| `public/mock` | Placeholder images referenced by `src/lib/services/mock/fixtures.ts` via `/mock/*.jpg` paths; currently only a `README.md` — the actual image files aren't in the repo yet, so those URLs 404 until added. Swapped for real Cloudinary assets once the CMS is connected. |
+| `public/demo-assets` | **Temporary** royalty-free luxury-event photos (Unsplash) referenced by `src/lib/services/mock/fixtures.ts` via `/demo-assets/*.jpg` — 25 event photos (1600×1067) + 2 hero images (2400×1350). Present for a production-ready demo; swapped for the client's real Cloudinary assets once the CMS is connected (see `public/demo-assets/README.md`). |
 | `src/app` | Next.js App Router — pages, layouts, and route handlers (e.g. `src/app/api/health/route.ts`). |
 | `src/components` | Reusable React components shared across routes (e.g. `SmoothScrollProvider`). |
 | `src/hooks` | Reusable React hooks (e.g. `usePrefersReducedMotion`). |

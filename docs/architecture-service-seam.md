@@ -54,9 +54,9 @@ Each layer only knows about the layer below it:
     Shower, Corporate, Stage — plus galleries, services, testimonials, hero
     banners, homepage sections, site settings, SEO meta, legal pages, and the
     media assets those rows reference by `media_asset_id`, pointing at
-    `/mock/*.jpg` URLs under `public/mock/` — as of this task that directory
-    holds only a `README.md`, so those image URLs 404 until placeholder
-    images are added), `mock-data-service.ts`
+    `/demo-assets/*.jpg` URLs under `public/demo-assets/` — temporary
+    royalty-free luxury-event photos used for a production-ready demo, replaced
+    by real Cloudinary media when the CMS is wired), `mock-data-service.ts`
     (`DataService` implemented over those fixtures — filters to
     `workflow_status === 'published' && !deleted_at` in-memory, the mock's
     stand-in for spec §5's RLS/views predicate), and `mock-auth-service.ts`
@@ -220,7 +220,7 @@ markers; there is no seam that silently lacks one.
 - `docs/database-er-diagram.md` — the Postgres schema (spec §4) that the
   domain types mirror.
 - `docs/folder-structure.md` — where `domain/`, `repositories/`, `services/`,
-  and `public/mock/` live in the repo tree.
+  and `public/demo-assets/` live in the repo tree.
 - `docs/superpowers/specs/2026-07-27-3-star-decoration-design.md` — the full
   frozen spec; §5 (RLS/views), §10 (enquiry flow), and §12 (security/auth) are
   the sections referenced above.

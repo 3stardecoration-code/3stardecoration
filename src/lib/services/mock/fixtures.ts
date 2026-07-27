@@ -14,16 +14,40 @@ import type {
   LegalPage,
 } from "@/lib/domain";
 
-function img(id: string, url: string, alt: string): MediaAsset {
+// ---------------------------------------------------------------------------
+// ⚠️ TEMPORARY DEMONSTRATION ASSETS — NOT the client's content.
+// The images referenced below live in /public/demo-assets and are royalty-free
+// luxury-event photos (Unsplash) used ONLY to present a production-ready demo.
+// When the client's real photos/videos are uploaded through the Media Library
+// (Cloudinary), the Supabase adapter replaces these fixtures entirely — NO
+// layout/markup change is needed, because every consumer reads a MediaAsset's
+// secure_url / width / height / dominant_color, never a hard-coded path.
+// Aspect ratios are preserved to match the CMS: event photos 1600×1067 (3:2),
+// hero images 2400×1350 (16:9). Attribution: public/demo-assets/README.md.
+// ---------------------------------------------------------------------------
+
+// Real average colours of the demo images, for blur-up / progressive loading.
+const DEMO_COLORS: Record<string, string> = {
+  "wedding-01": "#50473d", "wedding-02": "#b06b38", "wedding-03": "#644834",
+  "wedding-04": "#a2988a", "wedding-05": "#757e6f", "wedding-06": "#aba28e",
+  "reception-01": "#b8ac9d", "reception-02": "#75532b", "reception-03": "#7e634e", "reception-04": "#a28a67",
+  "stage-01": "#a17b59", "stage-02": "#6d5042", "stage-03": "#786957", "stage-04": "#813470", "stage-05": "#5c226a",
+  "floral-01": "#57524e", "floral-02": "#8c6d49", "floral-03": "#584f3d", "floral-04": "#816948", "floral-05": "#d2c0af", "floral-06": "#9eae8c",
+  "corporate-01": "#6e417d", "corporate-02": "#2f1e34", "corporate-03": "#6a5441", "corporate-04": "#6c6e6d",
+  "hero-01": "#5a4e42", "hero-02": "#a47d5a",
+};
+
+// Build a MediaAsset that points at a /demo-assets image (temporary demo content).
+function demoImg(id: string, asset: string, alt: string, w = 1600, h = 1067): MediaAsset {
   return {
     id,
     source: "cloudinary_image",
     public_id: null,
     provider_id: null,
-    secure_url: url,
-    thumbnail_url: url,
-    width: 1600,
-    height: 1067,
+    secure_url: `/demo-assets/${asset}.jpg`,
+    thumbnail_url: `/demo-assets/${asset}.jpg`,
+    width: w,
+    height: h,
     duration: null,
     format: "jpg",
     file_size: null,
@@ -31,7 +55,7 @@ function img(id: string, url: string, alt: string): MediaAsset {
     title: alt,
     caption: null,
     tags: [],
-    dominant_color: "#d8cfc4",
+    dominant_color: DEMO_COLORS[asset] ?? "#d8cfc4",
     blur_placeholder: null,
     favorite: false,
     uploaded_by: null,
@@ -40,6 +64,18 @@ function img(id: string, url: string, alt: string): MediaAsset {
     deleted_at: null,
   };
 }
+
+// Category → ordered pool of demo-asset basenames. index 0 suits the 1st project
+// in the category, index 1 the 2nd (rotation below), remaining used for galleries.
+const CATEGORY_IMAGES: Record<string, string[]> = {
+  "cat-wedding": ["wedding-04", "wedding-02", "wedding-06", "wedding-03", "wedding-05", "wedding-01"],
+  "cat-reception": ["reception-04", "reception-03", "reception-02", "reception-01", "floral-05", "wedding-05"],
+  "cat-engagement": ["floral-04", "wedding-01", "floral-05", "wedding-06", "floral-01", "wedding-03"],
+  "cat-birthday": ["floral-02", "stage-04", "stage-05", "corporate-02", "floral-03", "floral-06"],
+  "cat-baby-shower": ["floral-05", "floral-06", "floral-04", "floral-01", "reception-01", "wedding-04"],
+  "cat-corporate": ["corporate-03", "corporate-04", "corporate-01", "corporate-02", "reception-02", "stage-03"],
+  "cat-stage": ["stage-01", "stage-02", "stage-03", "stage-05", "stage-04", "floral-02"],
+};
 
 export const categories: Category[] = [
   { id: "cat-wedding", name: "Wedding", slug: "wedding", description: null, sort_order: 1, cover_media_asset_id: null },
@@ -72,12 +108,21 @@ const projectSeed: Array<{ slug: string; title: string; cat: string; featured?: 
 export const mediaAssets: MediaAsset[] = [];
 export const projects: Project[] = [];
 export const projectMedia: ProjectMedia[] = [];
+const projectCoverIds: string[] = [];
+
+// Two projects share each category; this rotates the pool so their covers differ.
+const perCategoryIndex: Record<string, number> = {};
 
 projectSeed.forEach((p, i) => {
   const n = String(i + 1).padStart(2, "0");
+  const pool = CATEGORY_IMAGES[p.cat] ?? ["wedding-01"];
+  const rot = (perCategoryIndex[p.cat] = (perCategoryIndex[p.cat] ?? -1) + 1);
+  const pick = (slot: number) => pool[(slot + rot) % pool.length];
+
   const coverId = `media-${p.slug}-cover`;
-  mediaAssets.push(img(coverId, `/mock/project-${n}-cover.jpg`, `${p.title} cover`));
-  const cover: string = coverId;
+  mediaAssets.push(demoImg(coverId, pick(0), `${p.title} — cover`));
+  projectCoverIds.push(coverId);
+
   projects.push({
     id: `proj-${n}`,
     title: p.title,
@@ -86,7 +131,7 @@ projectSeed.forEach((p, i) => {
     event_type: p.title,
     summary: `A beautifully designed ${p.title.toLowerCase()} by 3 Star Decoration.`,
     description: `<p>${p.title} — full event design, styling, and floral by 3 Star Decoration.</p>`,
-    cover_media_asset_id: cover,
+    cover_media_asset_id: coverId,
     client_name: null,
     location: "Chennai",
     event_date: `2025-${String((i % 12) + 1).padStart(2, "0")}-12`,
@@ -98,15 +143,16 @@ projectSeed.forEach((p, i) => {
     published_at: "2026-01-01T00:00:00.000Z",
     meta_title: `${p.title} | 3 Star Decoration`,
     meta_description: `${p.title} event decoration portfolio.`,
-    og_media_asset_id: cover,
+    og_media_asset_id: coverId,
     auto_seo_generated: true,
     robots_index: true,
     robots_follow: true,
     deleted_at: null,
   });
+
   for (let g = 1; g <= 4; g++) {
     const gid = `media-${p.slug}-${g}`;
-    mediaAssets.push(img(gid, `/mock/project-${n}-${g}.jpg`, `${p.title} photo ${g}`));
+    mediaAssets.push(demoImg(gid, pick(g), `${p.title} — photo ${g}`));
     projectMedia.push({
       id: `pm-${n}-${g}`,
       project_id: `proj-${n}`,
@@ -117,16 +163,24 @@ projectSeed.forEach((p, i) => {
   }
 });
 
+// Two dedicated 16:9 hero images (temporary demo assets), added to the library
+// so hero_banners.media_asset_id resolves through media.getById().
+mediaAssets.push(
+  demoImg("media-hero-01", "hero-01", "Elegant wedding celebration", 2400, 1350),
+  demoImg("media-hero-02", "hero-02", "Ornate stage decoration", 2400, 1350),
+);
+
 export const galleries: Gallery[] = [
   { id: "gal-home", title: "Homepage Featured", slug: "homepage-featured", description: null, category_id: null, type: "homepage_featured", is_active: true, sort_order: 1, deleted_at: null },
   { id: "gal-wedding", title: "Wedding Gallery", slug: "wedding", description: null, category_id: "cat-wedding", type: "standard", is_active: true, sort_order: 2, deleted_at: null },
   { id: "gal-instagram", title: "Instagram", slug: "instagram", description: null, category_id: null, type: "instagram", is_active: true, sort_order: 3, deleted_at: null },
 ];
 
-export const galleryItems: GalleryItem[] = mediaAssets.slice(0, 9).map((m, i) => ({
+// Homepage featured gallery: one cover per project (first 9 → spans categories).
+export const galleryItems: GalleryItem[] = projectCoverIds.slice(0, 9).map((mediaId, i) => ({
   id: `gi-${i + 1}`,
   gallery_id: "gal-home",
-  media_asset_id: m.id,
+  media_asset_id: mediaId,
   caption: null,
   sort_order: i,
 }));
@@ -166,8 +220,8 @@ export const testimonials: Testimonial[] = [
 ];
 
 export const heroBanners: HeroBanner[] = [
-  { id: "hero-1", media_asset_id: mediaAssets[0]?.id ?? null, eyebrow: "3 Star Decoration", title: "Celebrations, beautifully designed", subtitle: "Weddings · Receptions · Every occasion", cta_label: "View our work", cta_href: "/portfolio", layout_type: "fullscreen_image", sort_order: 1, workflow_status: "published", published_at: "2026-01-01T00:00:00.000Z" },
-  { id: "hero-2", media_asset_id: mediaAssets[4]?.id ?? null, eyebrow: "Bespoke event styling", title: "Cinematic. Elegant. Unforgettable.", subtitle: null, cta_label: "Get a quote", cta_href: "/quote", layout_type: "split", sort_order: 2, workflow_status: "published", published_at: "2026-01-01T00:00:00.000Z" },
+  { id: "hero-1", media_asset_id: "media-hero-01", eyebrow: "3 Star Decoration", title: "Celebrations, beautifully designed", subtitle: "Weddings · Receptions · Every occasion", cta_label: "View our work", cta_href: "/portfolio", layout_type: "fullscreen_image", sort_order: 1, workflow_status: "published", published_at: "2026-01-01T00:00:00.000Z" },
+  { id: "hero-2", media_asset_id: "media-hero-02", eyebrow: "Bespoke event styling", title: "Cinematic. Elegant. Unforgettable.", subtitle: null, cta_label: "Get a quote", cta_href: "/quote", layout_type: "split", sort_order: 2, workflow_status: "published", published_at: "2026-01-01T00:00:00.000Z" },
 ];
 
 export const homepageSections: HomepageSection[] = [
