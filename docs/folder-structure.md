@@ -11,7 +11,8 @@ that happens.
 ├── docs/
 │   └── superpowers/        Planning artifacts: specs and dated implementation plans
 ├── public/                 Static assets served as-is (favicons, placeholder SVGs)
-│   └── mock/               Placeholder images for the mock data service (pre-Supabase dev)
+│   └── mock/               Placeholder images for the mock data service (currently README.md only —
+│                            the `/mock/*.jpg` files fixtures.ts references aren't added yet)
 ├── src/
 │   ├── app/                Next.js App Router: routes, layouts, API route handlers
 │   ├── components/         Shared React components (currently: providers)
@@ -37,7 +38,7 @@ that happens.
 | `.github/workflows` | CI workflow (`ci.yml`): lint, typecheck, unit tests, build on every push/PR. |
 | `docs` | Human-readable documentation: this file, environment variables, ER diagram, and the `superpowers/` planning specs & plans. |
 | `public` | Files served verbatim at the site root (icons, static SVGs). |
-| `public/mock` | Placeholder images referenced by `src/lib/services/mock/fixtures.ts`; swapped for real Cloudinary assets once the CMS is connected. |
+| `public/mock` | Placeholder images referenced by `src/lib/services/mock/fixtures.ts` via `/mock/*.jpg` paths; currently only a `README.md` — the actual image files aren't in the repo yet, so those URLs 404 until added. Swapped for real Cloudinary assets once the CMS is connected. |
 | `src/app` | Next.js App Router — pages, layouts, and route handlers (e.g. `src/app/api/health/route.ts`). |
 | `src/components` | Reusable React components shared across routes (e.g. `SmoothScrollProvider`). |
 | `src/hooks` | Reusable React hooks (e.g. `usePrefersReducedMotion`). |

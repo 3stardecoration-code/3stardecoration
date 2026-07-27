@@ -53,7 +53,10 @@ Each layer only knows about the layer below it:
     portfolio categories: Wedding, Reception, Engagement, Birthday, Baby
     Shower, Corporate, Stage — plus galleries, services, testimonials, hero
     banners, homepage sections, site settings, SEO meta, legal pages, and the
-    media assets those rows reference by `media_asset_id`), `mock-data-service.ts`
+    media assets those rows reference by `media_asset_id`, pointing at
+    `/mock/*.jpg` URLs under `public/mock/` — as of this task that directory
+    holds only a `README.md`, so those image URLs 404 until placeholder
+    images are added), `mock-data-service.ts`
     (`DataService` implemented over those fixtures — filters to
     `workflow_status === 'published' && !deleted_at` in-memory, the mock's
     stand-in for spec §5's RLS/views predicate), and `mock-auth-service.ts`
@@ -92,6 +95,13 @@ the mock adapter yet (Plans B/C will, exclusively through `@/lib/services`).
 Enforcing the rule means the day the Supabase adapter lands, every call site
 in the app keeps working unmodified — only `provider.ts` changes (see §4
 below).
+
+One caveat: `provider.ts`, `mock-data-service.ts`, and `mock-auth-service.ts`
+all start with `import "server-only"` — the accessors can only be called from
+server-side code (Server Components, Server Actions, Route Handlers), not
+from a `"use client"` component. Client components that need this data
+receive it as **props from a Server Component** that already called
+`getDataService()`; they never call the accessor themselves.
 
 ## 3. Why domain types are snake_case
 
