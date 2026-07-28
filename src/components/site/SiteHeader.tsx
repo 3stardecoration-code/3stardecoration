@@ -14,9 +14,15 @@ const NAV = [
 
 export function SiteHeader() {
   const pathname = usePathname();
-  // Pages with a full-bleed hero behind the header: home + each project detail
-  // (/portfolio/<slug>). The portfolio listing (/portfolio) has no hero.
-  const overHero = pathname === "/" || pathname.startsWith("/portfolio/");
+  // Pages with a full-bleed hero behind the header: home + project details
+  // (/portfolio/<slug>) + service details (/services/<slug>).
+  // The listing pages (/portfolio, /services) have page-level heroes with their
+  // own dark section — but they start with the page background showing, so the
+  // header reads as "over hero" only on the deep-slug detail pages.
+  const overHero =
+    pathname === "/" ||
+    pathname.startsWith("/portfolio/") ||
+    (pathname.startsWith("/services/") && pathname !== "/services");
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
