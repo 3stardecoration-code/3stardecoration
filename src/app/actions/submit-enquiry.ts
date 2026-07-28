@@ -21,7 +21,13 @@ const enquirySchema = z.object({
   event_date: z.string().optional().or(z.literal("")),
   event_city: z.string().max(120).optional().or(z.literal("")),
   venue: z.string().max(200).optional().or(z.literal("")),
-  guest_count: z.coerce.number().int().min(1).max(100000).optional(),
+  // FormData yields "" (not null) for an untouched input, and z.coerce.number()
+  // coerces "" to 0, which then fails .min(1) — preprocess strips empty values
+  // to undefined first so the field is genuinely optional.
+  guest_count: z.preprocess(
+    (v) => (v === "" || v === null ? undefined : v),
+    z.coerce.number().int().min(1).max(100000).optional(),
+  ),
   budget_range: z.string().max(40).optional().or(z.literal("")),
   preferred_contact_time: z.string().max(40).optional().or(z.literal("")),
   message: z.string().max(2000).optional().or(z.literal("")),
