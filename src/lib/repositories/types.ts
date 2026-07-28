@@ -53,6 +53,7 @@ export interface ProjectPatch {
   summary?: string | null;
   description?: string | null;
   cover_media_asset_id?: string | null;
+  og_media_asset_id?: string | null;
   client_name?: string | null;
   location?: string | null;
   event_date?: string | null;
