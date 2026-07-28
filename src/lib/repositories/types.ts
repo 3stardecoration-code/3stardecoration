@@ -81,6 +81,7 @@ export interface MediaRepository {
 
 export interface EnquiryRepository {
   create(input: NewEnquiry): Promise<Enquiry>;
+  list(args?: { limit?: number }): Promise<{ data: Enquiry[] }>;
 }
 
 export interface SettingsRepository {

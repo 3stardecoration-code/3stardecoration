@@ -132,6 +132,16 @@ export const mockDataService: DataService = {
       enquiries.push(enquiry);
       return enquiry;
     },
+    async list(args?: { limit?: number }) {
+      // Return mock data, newest first
+      let data = [...enquiries].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      if (args?.limit) {
+        data = data.slice(0, args.limit);
+      }
+      return { data };
+    },
   },
 
   settings: {
