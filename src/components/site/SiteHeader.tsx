@@ -14,8 +14,9 @@ const NAV = [
 
 export function SiteHeader() {
   const pathname = usePathname();
-  // Only the homepage has a full-bleed hero behind the header.
-  const overHero = pathname === "/";
+  // Pages with a full-bleed hero behind the header: home + each project detail
+  // (/portfolio/<slug>). The portfolio listing (/portfolio) has no hero.
+  const overHero = pathname === "/" || pathname.startsWith("/portfolio/");
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
