@@ -108,6 +108,7 @@ export interface ServicePatch {
   description?: string | null;
   icon?: string | null;
   media_asset_id?: string | null;
+  og_media_asset_id?: string | null;
   workflow_status?: WorkflowStatus;
   robots_index?: boolean;
   robots_follow?: boolean;
