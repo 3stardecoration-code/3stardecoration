@@ -256,7 +256,77 @@ export const seoMeta: SeoMeta[] = [
   { route_key: "portfolio", meta_title: "Our Work | 3 Star Decoration", meta_description: "Explore our event decoration portfolio.", og_media_asset_id: null, canonical: null, robots_index: true, robots_follow: true },
 ];
 
+// NOTE: generic starter copy, editable via the CMS (Legal Pages, spec §4.12).
+// Not a substitute for the client's own legal/compliance review before launch.
 export const legalPages: LegalPage[] = [
-  { slug: "privacy", title: "Privacy Policy", body: "<p>Placeholder privacy policy.</p>", updated_at: "2026-01-01T00:00:00.000Z" },
-  { slug: "terms", title: "Terms & Conditions", body: "<p>Placeholder terms.</p>", updated_at: "2026-01-01T00:00:00.000Z" },
+  {
+    slug: "privacy",
+    title: "Privacy Policy",
+    updated_at: "2026-01-01T00:00:00.000Z",
+    body: `
+      <p>3 Star Decoration ("we", "us") respects your privacy. This policy explains what
+      information we collect when you use this website and get in touch with us, and how
+      we use it.</p>
+
+      <h2>Information we collect</h2>
+      <p>When you submit a quote request or contact form, we collect the details you
+      provide — your name, phone number, email address, and information about your event
+      (type, date, city, venue, guest count, budget, and any message you send us).</p>
+
+      <h2>How we use it</h2>
+      <ul>
+        <li>To respond to your enquiry and discuss your event with you, usually over WhatsApp or phone.</li>
+        <li>To prepare quotes and proposals tailored to your celebration.</li>
+        <li>To keep a record of past enquiries so we can serve returning clients better.</li>
+      </ul>
+      <p>We do not sell your information to third parties.</p>
+
+      <h2>WhatsApp</h2>
+      <p>Submitting the quote form opens a WhatsApp conversation with our team using the
+      details you provided. WhatsApp's own privacy policy applies to messages sent through
+      that platform.</p>
+
+      <h2>Your choices</h2>
+      <p>You can ask us at any time to review, correct, or delete the information we hold
+      about you by reaching out through the Contact page.</p>
+
+      <h2>Contact us</h2>
+      <p>Questions about this policy can be sent to the email address listed on our
+      Contact page.</p>
+    `,
+  },
+  {
+    slug: "terms",
+    title: "Terms & Conditions",
+    updated_at: "2026-01-01T00:00:00.000Z",
+    body: `
+      <p>These terms apply when you enquire about or book event decoration services with
+      3 Star Decoration ("we", "us"). By submitting an enquiry or confirming a booking, you
+      agree to the terms below.</p>
+
+      <h2>Quotes and bookings</h2>
+      <p>Quotes shared over WhatsApp, email, or in person are estimates based on the
+      details provided and may be revised once we understand your event in full. A
+      booking is confirmed only once both parties agree on scope, pricing, and date.</p>
+
+      <h2>Changes and cancellations</h2>
+      <p>We understand event plans change. Please let us know about date changes,
+      guest-count changes, or cancellations as early as possible so we can adjust
+      sourcing, staffing, and materials accordingly.</p>
+
+      <h2>On the day</h2>
+      <p>We arrive with enough time to set up, style, and finish every detail before your
+      event begins, and typically handle breakdown after the event concludes, as agreed
+      in your booking.</p>
+
+      <h2>Liability</h2>
+      <p>We take care to protect venues and property while working, and carry appropriate
+      care for the materials and installations we bring. Specific liability terms for
+      your event are confirmed as part of your booking.</p>
+
+      <h2>Contact us</h2>
+      <p>If anything here is unclear, reach out through our Contact page before booking —
+      we're happy to talk it through.</p>
+    `,
+  },
 ];
