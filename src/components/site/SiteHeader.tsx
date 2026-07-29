@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Logo } from "./Logo";
 
 const NAV = [
   { href: "/", label: "Home" },
@@ -54,15 +55,8 @@ export function SiteHeader() {
       style={{ transitionTimingFunction: "var(--ease-lux)" }}
     >
       <div className="mx-auto flex w-full max-w-[82rem] items-center justify-between px-6 sm:px-8 lg:px-12">
-        <Link
-          href="/"
-          className={`flex items-baseline gap-2 whitespace-nowrap font-[family-name:var(--font-display)] text-xl tracking-tight ${ink}`}
-          aria-label="3 Star Decoration — home"
-        >
-          <span className="text-accent">✦</span>
-          <span>
-            3&nbsp;Star <span className="italic">Decoration</span>
-          </span>
+        <Link href="/" className="flex h-8 items-center sm:h-9" aria-label="3 Star Decoration — home">
+          <Logo priority className="h-full w-auto" />
         </Link>
 
         <nav className={`hidden items-center gap-9 lg:flex ${ink}`}>

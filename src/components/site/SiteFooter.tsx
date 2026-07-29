@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { SiteSettings } from "@/lib/domain";
 import { Container } from "@/components/ui/Container";
+import { Logo } from "@/components/site/Logo";
 import { whatsappUrl } from "@/lib/whatsapp";
 
 const NAV = [
@@ -24,9 +25,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
       <Container className="py-20">
         <div className="grid gap-14 md:grid-cols-[1.4fr_1fr_1fr]">
           <div className="max-w-sm">
-            <p className="flex items-baseline gap-2 font-[family-name:var(--font-display)] text-2xl">
-              <span className="text-accent">✦</span> 3 Star <span className="italic">Decoration</span>
-            </p>
+            <Logo className="h-10 w-auto" />
             <p className="mt-5 text-sm leading-relaxed text-ivory/60">
               Cinematic, luxury event decoration — weddings, receptions, and every celebration
               in between, designed to be unforgettable.

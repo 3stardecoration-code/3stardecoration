@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { ThreeStarLoader } from "./ThreeStarLoader";
+import { Logo } from "./Logo";
 
 /**
  * Luxury first-visit intro (spec §8.3). The page renders underneath immediately;
@@ -67,10 +68,8 @@ export function Preloader() {
         }}
       >
         <ThreeStarLoader loading={count < 100} />
-        <div className="flex items-baseline gap-2 font-[family-name:var(--font-display)] text-3xl">
-          <span>
-            3 Star <span className="italic">Decoration</span>
-          </span>
+        <div className="h-9">
+          <Logo className="h-full w-auto" priority />
         </div>
       </div>
       <div className="mt-8 h-px w-40 overflow-hidden bg-ivory/15">
