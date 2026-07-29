@@ -170,6 +170,17 @@ mediaAssets.push(
   demoImg("media-hero-02", "hero-02", "Ornate stage decoration", 2400, 1350),
 );
 
+// Before/After showcase pair (homepage-only signature moment) — a genuinely
+// bare venue paired with a fully styled hall, both 16:9 to match the slider.
+export const BEFORE_AFTER_IDS = { before: "media-before-hall", after: "media-hero-01" } as const;
+mediaAssets.push(
+  demoImg(BEFORE_AFTER_IDS.before, "before-empty-hall", "Bare venue before styling", 2400, 1350),
+);
+
+// Moody background for the homepage's glassmorphism testimonials section.
+export const TESTIMONIALS_BG_ID = "media-testimonials-bg";
+mediaAssets.push(demoImg(TESTIMONIALS_BG_ID, "wedding-01", "Candlelit celebration", 2400, 1600));
+
 export const galleries: Gallery[] = [
   { id: "gal-home", title: "Homepage Featured", slug: "homepage-featured", description: null, category_id: null, type: "homepage_featured", is_active: true, sort_order: 1, deleted_at: null },
   { id: "gal-wedding", title: "Wedding Gallery", slug: "wedding", description: null, category_id: "cat-wedding", type: "standard", is_active: true, sort_order: 2, deleted_at: null },
@@ -185,31 +196,37 @@ export const galleryItems: GalleryItem[] = projectCoverIds.slice(0, 9).map((medi
   sort_order: i,
 }));
 
-export const services: Service[] = [
-  "Wedding Decoration",
-  "Reception Styling",
-  "Engagement Setups",
-  "Birthday & Baby Shower",
-  "Corporate Events",
-  "Stage & Backdrop Design",
-].map((title, i) => ({
-  id: `svc-${i + 1}`,
-  title,
-  slug: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
-  short_description: `${title} by 3 Star Decoration.`,
-  description: `<p>${title} — premium, bespoke design.</p>`,
-  icon: "sparkles",
-  media_asset_id: null,
-  sort_order: i,
-  workflow_status: "published",
-  published_at: "2026-01-01T00:00:00.000Z",
-  meta_title: `${title} | 3 Star Decoration`,
-  meta_description: `${title} services.`,
-  og_media_asset_id: null,
-  robots_index: true,
-  robots_follow: true,
-  deleted_at: null,
-}));
+const SERVICE_SEED: Array<{ title: string; blurb: string; asset: string }> = [
+  { title: "Wedding Decoration", blurb: "Full-scale design for the one day you'll replay forever.", asset: "wedding-02" },
+  { title: "Reception Styling", blurb: "Tablescapes and lighting that keep the evening glowing.", asset: "reception-02" },
+  { title: "Engagement Setups", blurb: "An intimate scene for the moment you say yes.", asset: "floral-04" },
+  { title: "Birthday & Baby Shower", blurb: "Playful, considered styling for milestones big and small.", asset: "floral-02" },
+  { title: "Corporate Events", blurb: "Brand-worthy staging for launches, galas, and gatherings.", asset: "corporate-03" },
+  { title: "Stage & Backdrop Design", blurb: "Statement backdrops built to hold the room's attention.", asset: "stage-01" },
+];
+
+export const services: Service[] = SERVICE_SEED.map(({ title, blurb, asset }, i) => {
+  const mediaId = `media-svc-${i + 1}`;
+  mediaAssets.push(demoImg(mediaId, asset, `${title} by 3 Star Decoration`));
+  return {
+    id: `svc-${i + 1}`,
+    title,
+    slug: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    short_description: blurb,
+    description: `<p>${blurb}</p><p>Every detail — florals, drapery, lighting, and staging — designed as one cohesive scene, not a checklist of add-ons.</p>`,
+    icon: "sparkles",
+    media_asset_id: mediaId,
+    sort_order: i,
+    workflow_status: "published",
+    published_at: "2026-01-01T00:00:00.000Z",
+    meta_title: `${title} | 3 Star Decoration`,
+    meta_description: blurb,
+    og_media_asset_id: mediaId,
+    robots_index: true,
+    robots_follow: true,
+    deleted_at: null,
+  };
+});
 
 export const testimonials: Testimonial[] = [
   { id: "tst-1", author_name: "Priya & Arun", event_type: "Wedding", quote: "Every corner felt like a dream. Flawless styling.", rating: 5, media_asset_id: null, sort_order: 0, workflow_status: "published", published_at: "2026-01-01T00:00:00.000Z", deleted_at: null },

@@ -7,15 +7,15 @@
    these values change.
    ========================================================================== */
 @theme {
-  /* Palette — warm gallery neutrals + a single champagne-gold accent */
-  --color-ivory: #f6f2ea; /* page canvas */
-  --color-porcelain: #fdfbf7; /* raised surfaces */
-  --color-charcoal: #17130f; /* primary ink */
-  --color-espresso: #211913; /* dark sections */
-  --color-stone: #857a6c; /* secondary text */
-  --color-line: #e4dbcd; /* hairline dividers */
-  --color-accent: #b0894f; /* champagne gold */
-  --color-accent-deep: #8f6c39;
+  /* Palette — exact brief values: Warm Ivory, Charcoal Black, Pure White, Champagne Gold */
+  --color-ivory: #faf8f3; /* page canvas */
+  --color-porcelain: #ffffff; /* pure white — raised surfaces */
+  --color-charcoal: #151515; /* charcoal black — primary ink */
+  --color-espresso: #151515; /* charcoal black — dark sections */
+  --color-stone: #8b867e; /* secondary text, derived neutral */
+  --color-line: #e8e4dc; /* hairline dividers, derived neutral */
+  --color-accent: #c9a46a; /* champagne gold */
+  --color-accent-deep: #a18355;
 
   /* Type */
   --font-display: var(--font-fraunces), "Times New Roman", serif;
