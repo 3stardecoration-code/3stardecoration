@@ -19,7 +19,6 @@ export function Logo({ className, priority }: Props) {
       height={408}
       priority={priority}
       className={className}
-      style={{ width: "auto", height: "100%" }}
     />
   );
 }
