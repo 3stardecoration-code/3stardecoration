@@ -9,8 +9,7 @@ type Props = {
   media: Record<string, MediaAsset>;
 };
 
-// Curated subset, not the full catalogue — "less content, more visuals."
-const FEATURED_SLUGS = ["wedding-decoration", "reception-styling", "corporate-events", "stage-backdrop-design"];
+const FEATURED_SLUGS = ["wedding-decoration", "reception-styling", "engagement-setups", "birthday-baby-shower"];
 
 export function ServicesPreview({ services, media }: Props) {
   const items = FEATURED_SLUGS.map((slug) => services.find((s) => s.slug === slug)).filter(

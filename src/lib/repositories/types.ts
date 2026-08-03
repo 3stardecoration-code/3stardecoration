@@ -152,8 +152,16 @@ export interface HeroRepository {
   listPublished(): Promise<HeroBanner[]>;
 }
 
+export interface HomepageSectionPatch {
+  is_enabled?: boolean;
+  config?: Record<string, unknown>;
+}
+
 export interface HomepageRepository {
   listEnabledSections(): Promise<HomepageSection[]>;
+  // --- admin (write) ---
+  listAllSections(): Promise<HomepageSection[]>;
+  updateSection(id: string, patch: HomepageSectionPatch): Promise<HomepageSection>;
 }
 
 export interface MediaListArgs {

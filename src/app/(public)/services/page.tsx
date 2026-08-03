@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: seo?.meta_title ? { absolute: seo.meta_title } : "Our Services",
-    description: seo?.meta_description ?? "Event decoration services by 3 Star Decoration — weddings, receptions, engagements, birthdays, corporate events and stage design.",
+    description: seo?.meta_description ?? "Event decoration services by 3 Star Decoration — weddings, receptions, engagements, and birthdays.",
     alternates: base ? { canonical: `${base}/services` } : undefined,
     robots: {
       index: seo?.robots_index ?? true,

@@ -12,6 +12,7 @@ import type {
   MediaListArgs,
   NewMediaAsset,
   SortOrderEntry,
+  HomepageSectionPatch,
 } from "@/lib/repositories";
 import type { Enquiry, MediaAsset, NewEnquiry, Project, Service, Testimonial } from "@/lib/domain";
 import * as fx from "./fixtures";
@@ -312,6 +313,16 @@ export const mockDataService: DataService = {
   homepage: {
     async listEnabledSections() {
       return fx.homepageSections.filter((s) => s.is_enabled).sort((a, b) => a.sort_order - b.sort_order);
+    },
+    async listAllSections() {
+      return [...fx.homepageSections].sort((a, b) => a.sort_order - b.sort_order);
+    },
+    async updateSection(id: string, patch: HomepageSectionPatch) {
+      const section = fx.homepageSections.find((s) => s.id === id);
+      if (!section) throw new Error(`Homepage section not found: ${id}`);
+      if (patch.is_enabled !== undefined) section.is_enabled = patch.is_enabled;
+      if (patch.config !== undefined) section.config = { ...section.config, ...patch.config };
+      return section;
     },
   },
 

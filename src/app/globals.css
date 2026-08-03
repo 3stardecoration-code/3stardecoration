@@ -17,6 +17,13 @@
   --color-accent: #c9a46a; /* champagne gold */
   --color-accent-deep: #a18355;
 
+  /* Hero-only decorative pastels — soft, unique to the opening scene, never
+     used as a functional color (text/buttons) so the rest of the site's
+     palette stays untouched. */
+  --color-blush: #f4d9d0;
+  --color-sage: #d9e2d3;
+  --color-mist: #e2dbec;
+
   /* Type */
   --font-display: var(--font-fraunces), "Times New Roman", serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;

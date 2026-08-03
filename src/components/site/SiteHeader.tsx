@@ -15,13 +15,12 @@ const NAV = [
 
 export function SiteHeader() {
   const pathname = usePathname();
-  // Pages with a full-bleed hero behind the header: home + project details
-  // (/portfolio/<slug>) + service details (/services/<slug>).
-  // The listing pages (/portfolio, /services) have page-level heroes with their
-  // own dark section — but they start with the page background showing, so the
-  // header reads as "over hero" only on the deep-slug detail pages.
+  // Pages with a full-bleed dark hero behind the header: project details
+  // (/portfolio/<slug>) + service details (/services/<slug>). The homepage
+  // hero is a light pastel scene (no dark photo), so it does NOT get the
+  // light/transparent nav treatment — inked nav reads correctly on it from
+  // the very first frame.
   const overHero =
-    pathname === "/" ||
     pathname.startsWith("/portfolio/") ||
     (pathname.startsWith("/services/") && pathname !== "/services");
   const [scrolled, setScrolled] = useState(false);

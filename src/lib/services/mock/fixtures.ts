@@ -172,14 +172,16 @@ mediaAssets.push(
 
 // Before/After showcase pair (homepage-only signature moment) — a genuinely
 // bare venue paired with a fully styled hall, both 16:9 to match the slider.
-export const BEFORE_AFTER_IDS = { before: "media-before-hall", after: "media-hero-01" } as const;
+// Defaults only — the admin Homepage page can repoint either image at any time.
+const DEFAULT_BEFORE_MEDIA_ID = "media-before-hall";
+const DEFAULT_AFTER_MEDIA_ID = "media-hero-01";
 mediaAssets.push(
-  demoImg(BEFORE_AFTER_IDS.before, "before-empty-hall", "Bare venue before styling", 2400, 1350),
+  demoImg(DEFAULT_BEFORE_MEDIA_ID, "before-empty-hall", "Bare venue before styling", 2400, 1350),
 );
 
-// Moody background for the homepage's glassmorphism testimonials section.
-export const TESTIMONIALS_BG_ID = "media-testimonials-bg";
-mediaAssets.push(demoImg(TESTIMONIALS_BG_ID, "wedding-01", "Candlelit celebration", 2400, 1600));
+// Moody background for the homepage's glassmorphism testimonials section (default).
+const DEFAULT_TESTIMONIALS_BG_ID = "media-testimonials-bg";
+mediaAssets.push(demoImg(DEFAULT_TESTIMONIALS_BG_ID, "wedding-01", "Candlelit celebration", 2400, 1600));
 
 export const galleries: Gallery[] = [
   { id: "gal-home", title: "Homepage Featured", slug: "homepage-featured", description: null, category_id: null, type: "homepage_featured", is_active: true, sort_order: 1, deleted_at: null },
@@ -201,8 +203,6 @@ const SERVICE_SEED: Array<{ title: string; blurb: string; asset: string }> = [
   { title: "Reception Styling", blurb: "Tablescapes and lighting that keep the evening glowing.", asset: "reception-02" },
   { title: "Engagement Setups", blurb: "An intimate scene for the moment you say yes.", asset: "floral-04" },
   { title: "Birthday & Baby Shower", blurb: "Playful, considered styling for milestones big and small.", asset: "floral-02" },
-  { title: "Corporate Events", blurb: "Brand-worthy staging for launches, galas, and gatherings.", asset: "corporate-03" },
-  { title: "Stage & Backdrop Design", blurb: "Statement backdrops built to hold the room's attention.", asset: "stage-01" },
 ];
 
 export const services: Service[] = SERVICE_SEED.map(({ title, blurb, asset }, i) => {
@@ -245,9 +245,31 @@ export const homepageSections: HomepageSection[] = [
   { id: "hs-1", section_key: "hero", is_enabled: true, sort_order: 1, is_featured: false, config: {} },
   { id: "hs-2", section_key: "featured_works", is_enabled: true, sort_order: 2, is_featured: true, config: {} },
   { id: "hs-3", section_key: "featured_services", is_enabled: true, sort_order: 3, is_featured: false, config: {} },
-  { id: "hs-4", section_key: "testimonials", is_enabled: true, sort_order: 4, is_featured: false, config: {} },
-  { id: "hs-5", section_key: "instagram", is_enabled: true, sort_order: 5, is_featured: false, config: {} },
-  { id: "hs-6", section_key: "quote_cta", is_enabled: true, sort_order: 6, is_featured: false, config: {} },
+  {
+    id: "hs-4",
+    section_key: "before_after",
+    is_enabled: true,
+    sort_order: 4,
+    is_featured: false,
+    config: { before_media_asset_id: DEFAULT_BEFORE_MEDIA_ID, after_media_asset_id: DEFAULT_AFTER_MEDIA_ID },
+  },
+  {
+    id: "hs-5",
+    section_key: "testimonials",
+    is_enabled: true,
+    sort_order: 5,
+    is_featured: false,
+    config: { background_media_asset_id: DEFAULT_TESTIMONIALS_BG_ID },
+  },
+  {
+    id: "hs-6",
+    section_key: "instagram",
+    is_enabled: true,
+    sort_order: 6,
+    is_featured: false,
+    config: { media_asset_ids: projectCoverIds.slice(0, 9) },
+  },
+  { id: "hs-7", section_key: "quote_cta", is_enabled: true, sort_order: 7, is_featured: false, config: {} },
 ];
 
 export const siteSettings: SiteSettings = {

@@ -31,18 +31,6 @@ const SERVICE_ICONS: Record<string, React.ReactNode> = {
       <path d="M3 19h18v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2z" />
     </svg>
   ),
-  "corporate-events": (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.3} className="h-7 w-7">
-      <rect x="2" y="7" width="20" height="14" rx="2" />
-      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2m4 5v4m-3-2h6" />
-    </svg>
-  ),
-  "stage-backdrop-design": (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.3} className="h-7 w-7">
-      <rect x="2" y="3" width="20" height="14" rx="1" />
-      <path d="M8 21h8M12 17v4" />
-    </svg>
-  ),
 };
 
 // Fallback icon — generic sparkles/star
@@ -66,7 +54,7 @@ export function ServicesGrid({ services, coverMedia }: Props) {
           <p className="eyebrow">Full range</p>
           <h2 className="display mt-4 text-4xl sm:text-5xl">Everything we offer</h2>
           <p className="mt-5 text-[0.95rem] leading-relaxed text-stone">
-            Six specialities, one unified aesthetic. Every service is delivered with the same
+            Four specialities, one unified aesthetic. Every service is delivered with the same
             attention to detail — whether intimate or grand.
           </p>
         </Reveal>
