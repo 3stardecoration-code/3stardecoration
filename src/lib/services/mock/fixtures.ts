@@ -35,6 +35,7 @@ const DEMO_COLORS: Record<string, string> = {
   "floral-01": "#57524e", "floral-02": "#8c6d49", "floral-03": "#584f3d", "floral-04": "#816948", "floral-05": "#d2c0af", "floral-06": "#9eae8c",
   "corporate-01": "#6e417d", "corporate-02": "#2f1e34", "corporate-03": "#6a5441", "corporate-04": "#6c6e6d",
   "hero-01": "#b16c39", "hero-02": "#a47d5a",
+  "hero-stack-01": "#c48a76", "hero-stack-02": "#b6975a",
 };
 
 // Build a MediaAsset that points at a /demo-assets image (temporary demo content).
@@ -170,6 +171,14 @@ mediaAssets.push(
   demoImg("media-hero-02", "hero-02", "Ornate stage decoration", 2400, 1350),
 );
 
+// Hero "photo stack" pair — the two tilted prints layered around the headline.
+// Defaults only — the admin Homepage page can repoint either at any time.
+const DEFAULT_HERO_STACK_IDS = ["media-hero-stack-01", "media-hero-stack-02"];
+mediaAssets.push(
+  demoImg(DEFAULT_HERO_STACK_IDS[0], "hero-stack-01", "Floral mandap archway", 1400, 933),
+  demoImg(DEFAULT_HERO_STACK_IDS[1], "hero-stack-02", "Outdoor mandap ceremony", 1400, 933),
+);
+
 // Before/After showcase pair (homepage-only signature moment) — a genuinely
 // bare venue paired with a fully styled hall, both 16:9 to match the slider.
 // Defaults only — the admin Homepage page can repoint either image at any time.
@@ -242,7 +251,14 @@ export const heroBanners: HeroBanner[] = [
 ];
 
 export const homepageSections: HomepageSection[] = [
-  { id: "hs-1", section_key: "hero", is_enabled: true, sort_order: 1, is_featured: false, config: {} },
+  {
+    id: "hs-1",
+    section_key: "hero",
+    is_enabled: true,
+    sort_order: 1,
+    is_featured: false,
+    config: { media_asset_ids: DEFAULT_HERO_STACK_IDS },
+  },
   { id: "hs-2", section_key: "featured_works", is_enabled: true, sort_order: 2, is_featured: true, config: {} },
   { id: "hs-3", section_key: "featured_services", is_enabled: true, sort_order: 3, is_featured: false, config: {} },
   {

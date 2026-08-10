@@ -9,12 +9,6 @@ premium demo before the real portfolio is uploaded.
 - **Theme:** luxury weddings, receptions, stage/mandap decoration, floral
   setups, and corporate events — chosen to match the premium brand direction.
 - **Format:** event photos are 1600×1067 (3:2); hero images are 2400×1350 (16:9).
-- **Hero video** (`video/hero-hall-reveal.mp4`): royalty-free clip from
-  [Pexels](https://www.pexels.com/video/elegant-wedding-venue-with-luxurious-decor-34926867/)
-  (free to use under the [Pexels License](https://www.pexels.com/license/), no
-  attribution required). Replace with the client's own footage of a real
-  decorated hall before launch — swap the file and update the `src` in
-  `src/components/home/Hero.tsx`.
 
 ## How these get replaced (no code change)
 
