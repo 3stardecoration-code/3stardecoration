@@ -175,6 +175,14 @@ export interface NewMediaAsset {
   secure_url: string;
   alt_text: string;
   title?: string | null;
+  // Populated when the asset came from a real Cloudinary upload rather than a pasted URL.
+  public_id?: string | null;
+  thumbnail_url?: string | null;
+  width?: number | null;
+  height?: number | null;
+  format?: string | null;
+  file_size?: number | null;
+  source?: "cloudinary_image" | "cloudinary_video";
 }
 
 export interface MediaRepository {

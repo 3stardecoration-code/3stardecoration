@@ -2,13 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { getAuthService, getDataService } from "@/lib/services";
+import type { NewMediaAsset } from "@/lib/repositories";
 
-export async function addMediaAsset(formData: FormData): Promise<{ ok: true } | { ok: false; error: string }> {
+export async function addMediaAsset(input: NewMediaAsset): Promise<{ ok: true } | { ok: false; error: string }> {
   await getAuthService().requireAdmin();
-  const secure_url = String(formData.get("secure_url") ?? "").trim();
-  const alt_text = String(formData.get("alt_text") ?? "").trim();
-  if (!secure_url || !alt_text) return { ok: false, error: "Image URL and alt text are required." };
-  await getDataService().media.create({ secure_url, alt_text });
+  if (!input.secure_url.trim() || !input.alt_text.trim()) {
+    return { ok: false, error: "Image and alt text are required." };
+  }
+  await getDataService().media.create(input);
   revalidatePath("/admin/media");
   return { ok: true };
 }

@@ -49,7 +49,6 @@ export default function AdminLoginPage() {
                   type="email"
                   autoComplete="email"
                   required
-                  defaultValue="owner@3stardecoration.local"
                   className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-[#a48252] focus:outline-none focus:ring-[#a48252] sm:text-sm"
                 />
               </div>
@@ -69,7 +68,6 @@ export default function AdminLoginPage() {
                   type="password"
                   autoComplete="current-password"
                   required
-                  defaultValue="mock-password"
                   className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-[#a48252] focus:outline-none focus:ring-[#a48252] sm:text-sm"
                 />
               </div>
