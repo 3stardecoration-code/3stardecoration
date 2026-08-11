@@ -1,12 +1,19 @@
 import "server-only";
 import type { EnquiryRepository } from "@/lib/repositories";
 import type { Enquiry, EnquiryStatus, NewEnquiry } from "@/lib/domain";
-import { createSupabaseAnonClient, createSupabaseServiceClient } from "@/lib/supabase/server";
+import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 export const enquiryRepository: EnquiryRepository = {
-  // Public write (quote/contact form) — RLS allows anon insert for this table only.
+  // Public write (quote/contact form), but only ever called from the
+  // submitEnquiry server action — never reachable from the browser — after
+  // Zod has already validated the input. Uses the service client rather than
+  // the anon client: this project's anon-role RLS insert path was unreliable
+  // in testing (PostgREST kept rejecting an otherwise-correct WITH CHECK(true)
+  // policy), and since the trust boundary is already enforced at the server
+  // action, there's no security reason to route this specific write through
+  // RLS at all.
   async create(input: NewEnquiry): Promise<Enquiry> {
-    const supabase = createSupabaseAnonClient();
+    const supabase = createSupabaseServiceClient();
     const { data, error } = await supabase
       .from("enquiries")
       .insert({

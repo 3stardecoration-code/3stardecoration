@@ -94,7 +94,8 @@ export async function submitEnquiry(
       source: data.source,
     });
     return { ok: true, enquiryId: enquiry.id };
-  } catch {
+  } catch (err) {
+    console.error("submitEnquiry failed:", err);
     return { ok: false, error: "Something went wrong. Please try again or contact us directly." };
   }
 }
