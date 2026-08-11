@@ -58,7 +58,7 @@ export function Hero({ banner, stack }: Props) {
   return (
     <section
       ref={root}
-      className="relative flex h-[100svh] min-h-[640px] w-full items-center justify-center overflow-hidden bg-ivory"
+      className="relative flex w-full flex-col items-center justify-center overflow-hidden bg-ivory py-24 sm:py-28 lg:h-[100svh] lg:min-h-[640px] lg:py-0"
     >
       {stack.length > 0 && (
         <div ref={cardsRef} aria-hidden className="pointer-events-none absolute inset-0">
@@ -80,6 +80,14 @@ export function Hero({ banner, stack }: Props) {
       )}
 
       <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center px-6 text-center sm:px-8">
+        {stack[0] && (
+          <div className="hero-card mb-8 w-[42vw] max-w-[160px] min-w-[120px] -rotate-6 border-[4px] border-porcelain shadow-[0_14px_34px_rgba(21,21,21,0.16)] lg:hidden">
+            <div className="relative aspect-[4/5] w-full">
+              <MediaImage asset={stack[0]} fill sizes="40vw" />
+            </div>
+          </div>
+        )}
+
         {banner.eyebrow && <p className="hero-fade eyebrow mb-7 text-accent-deep">{banner.eyebrow}</p>}
 
         <h1 className="display max-w-xl text-[11vw] leading-[0.98] text-charcoal sm:text-6xl lg:text-7xl">
@@ -112,6 +120,14 @@ export function Hero({ banner, stack }: Props) {
             </Magnetic>
           </Link>
         </div>
+
+        {stack[1] && (
+          <div className="hero-card mt-10 w-[42vw] max-w-[160px] min-w-[120px] rotate-6 border-[4px] border-porcelain shadow-[0_14px_34px_rgba(21,21,21,0.16)] lg:hidden">
+            <div className="relative aspect-[4/5] w-full">
+              <MediaImage asset={stack[1]} fill sizes="40vw" />
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
