@@ -15,45 +15,68 @@ type CloudinaryUploadResponse = {
   resource_type: "image" | "video";
 };
 
+type QueueItem = {
+  id: string;
+  file: File;
+  altText: string;
+  preview: string;
+  status: "pending" | "uploading" | "done" | "error";
+  error?: string;
+};
+
+const CONCURRENCY = 3;
+
+/** "wedding-hall_03.jpg" -> "Wedding hall 03" (optionally prefixed with the parent folder name). */
+function humanize(file: File): string {
+  const relPath = (file as File & { webkitRelativePath?: string }).webkitRelativePath;
+  const folder = relPath?.includes("/") ? relPath.split("/").slice(-2, -1)[0] : null;
+  const base = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
+  const label = base.charAt(0).toUpperCase() + base.slice(1);
+  return folder ? `${folder} — ${label}` : label;
+}
+
 export function AddMediaForm() {
   const router = useRouter();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [altText, setAltText] = useState("");
+  const [queue, setQueue] = useState<QueueItem[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [progress, setProgress] = useState<"idle" | "uploading" | "saving">("idle");
+  const [running, setRunning] = useState(false);
+
+  function addFiles(fileList: FileList | null) {
+    if (!fileList) return;
+    const picked = [...fileList].filter((f) => f.type.startsWith("image/") || f.type.startsWith("video/"));
+    const items: QueueItem[] = picked.map((file, i) => ({
+      id: `${Date.now()}-${i}-${file.name}`,
+      file,
+      altText: humanize(file),
+      preview: URL.createObjectURL(file),
+      status: "pending",
+    }));
+    setQueue((q) => [...q, ...items]);
+  }
+
+  function removeItem(id: string) {
+    setQueue((q) => q.filter((item) => item.id !== id));
+  }
+
+  function updateAlt(id: string, altText: string) {
+    setQueue((q) => q.map((item) => (item.id === id ? { ...item, altText } : item)));
+  }
 
   function reset() {
-    setFile(null);
-    setPreview(null);
-    setAltText("");
+    setQueue([]);
     setError(null);
-    setProgress("idle");
-    if (inputRef.current) inputRef.current.value = "";
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (folderInputRef.current) folderInputRef.current.value = "";
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const picked = e.target.files?.[0] ?? null;
-    setFile(picked);
-    setPreview(picked ? URL.createObjectURL(picked) : null);
-  }
-
-  async function handleUpload() {
-    if (!file || !altText.trim()) {
-      setError("Choose a photo and describe it before uploading.");
-      return;
-    }
-    setError(null);
-    setProgress("uploading");
+  async function uploadOne(sign: SignResponse, item: QueueItem) {
+    setQueue((q) => q.map((i) => (i.id === item.id ? { ...i, status: "uploading" } : i)));
     try {
-      const signRes = await fetch("/api/admin/cloudinary-sign", { method: "POST" });
-      if (!signRes.ok) throw new Error("Could not sign the upload. Is Cloudinary configured?");
-      const sign: SignResponse = await signRes.json();
-
       const uploadForm = new FormData();
-      uploadForm.append("file", file);
+      uploadForm.append("file", item.file);
       uploadForm.append("api_key", sign.apiKey);
       uploadForm.append("timestamp", String(sign.timestamp));
       uploadForm.append("signature", sign.signature);
@@ -66,10 +89,9 @@ export function AddMediaForm() {
       if (!uploadRes.ok) throw new Error("Upload to Cloudinary failed.");
       const uploaded: CloudinaryUploadResponse = await uploadRes.json();
 
-      setProgress("saving");
       const res = await addMediaAsset({
         secure_url: uploaded.secure_url,
-        alt_text: altText.trim(),
+        alt_text: item.altText.trim() || item.file.name,
         public_id: uploaded.public_id,
         thumbnail_url: uploaded.secure_url,
         width: uploaded.width ?? null,
@@ -80,65 +102,159 @@ export function AddMediaForm() {
       });
       if (!res.ok) throw new Error(res.error);
 
-      reset();
-      setOpen(false);
+      setQueue((q) => q.map((i) => (i.id === item.id ? { ...i, status: "done" } : i)));
+    } catch (err) {
+      setQueue((q) =>
+        q.map((i) =>
+          i.id === item.id
+            ? { ...i, status: "error", error: err instanceof Error ? err.message : "Failed" }
+            : i,
+        ),
+      );
+    }
+  }
+
+  async function handleUploadAll() {
+    const pending = queue.filter((i) => i.status === "pending" || i.status === "error");
+    if (pending.length === 0) return;
+    setError(null);
+    setRunning(true);
+    try {
+      const signRes = await fetch("/api/admin/cloudinary-sign", { method: "POST" });
+      if (!signRes.ok) throw new Error("Could not sign the upload. Is Cloudinary configured?");
+      const sign: SignResponse = await signRes.json();
+
+      let cursor = 0;
+      async function worker() {
+        while (cursor < pending.length) {
+          const item = pending[cursor];
+          cursor += 1;
+          await uploadOne(sign, item);
+        }
+      }
+      await Promise.all(Array.from({ length: Math.min(CONCURRENCY, pending.length) }, worker));
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
-      setProgress("idle");
+    } finally {
+      setRunning(false);
     }
   }
+
+  const doneCount = queue.filter((i) => i.status === "done").length;
+  const errorCount = queue.filter((i) => i.status === "error").length;
+  const allDone = queue.length > 0 && doneCount === queue.length;
 
   return (
     <div>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          setOpen((v) => !v);
+          if (open) reset();
+        }}
         className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
       >
-        {open ? "Cancel" : "+ Add photo"}
+        {open ? "Cancel" : "+ Add photos"}
       </button>
 
       {open && (
-        <div className="mt-4 max-w-lg space-y-3 rounded-xl border border-gray-200 p-4">
-          <label
-            htmlFor="media-file"
-            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 p-6 text-center hover:border-gray-300"
-          >
-            {preview ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={preview} alt="" className="max-h-40 rounded-lg object-contain" />
-            ) : (
-              <>
-                <span className="text-sm font-medium text-gray-700">Choose a photo or video</span>
-                <span className="text-xs text-gray-400">JPG, PNG, or MP4</span>
-              </>
-            )}
-            <input
-              id="media-file"
-              ref={inputRef}
-              type="file"
-              accept="image/*,video/*"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-          </label>
+        <div className="mt-4 max-w-2xl space-y-4 rounded-xl border border-gray-200 p-4">
+          <div className="flex flex-wrap gap-3">
+            <label className="cursor-pointer rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              Choose photos or videos
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                onChange={(e) => addFiles(e.target.files)}
+                className="hidden"
+              />
+            </label>
+            <label className="cursor-pointer rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              Choose a whole folder
+              <input
+                ref={folderInputRef}
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                // Non-standard attributes that enable folder (incl. subfolder) selection in Chrome/Edge/Safari.
+                {...{ webkitdirectory: "", directory: "" }}
+                onChange={(e) => addFiles(e.target.files)}
+                className="hidden"
+              />
+            </label>
+            <p className="self-center text-xs text-gray-400">
+              Picking a folder grabs every photo in it and its subfolders.
+            </p>
+          </div>
 
-          <input
-            value={altText}
-            onChange={(e) => setAltText(e.target.value)}
-            placeholder="Describe the photo — e.g. Wedding stage with floral backdrop"
-            className="input"
-          />
+          {queue.length > 0 && (
+            <div className="max-h-96 space-y-2 overflow-y-auto">
+              {queue.map((item) => (
+                <div key={item.id} className="flex items-center gap-3 rounded-lg border border-gray-100 p-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.preview} alt="" className="h-12 w-12 shrink-0 rounded-md object-cover" />
+                  <input
+                    value={item.altText}
+                    onChange={(e) => updateAlt(item.id, e.target.value)}
+                    disabled={item.status === "uploading" || item.status === "done"}
+                    className="input flex-1 py-1.5 text-sm"
+                  />
+                  <span className="w-20 shrink-0 text-right text-xs">
+                    {item.status === "pending" && <span className="text-gray-400">Waiting</span>}
+                    {item.status === "uploading" && <span className="text-gray-500">Uploading…</span>}
+                    {item.status === "done" && <span className="text-emerald-600">Uploaded</span>}
+                    {item.status === "error" && <span title={item.error} className="text-red-600">Failed</span>}
+                  </span>
+                  {item.status !== "uploading" && item.status !== "done" && (
+                    <button
+                      type="button"
+                      onClick={() => removeItem(item.id)}
+                      className="shrink-0 text-xs text-gray-400 hover:text-gray-700"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
           {error && <p className="text-xs text-red-600">{error}</p>}
-          <button
-            type="button"
-            onClick={handleUpload}
-            disabled={progress !== "idle" || !file}
-            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-          >
-            {progress === "uploading" ? "Uploading…" : progress === "saving" ? "Saving…" : "Upload to library"}
-          </button>
+          {queue.length > 0 && (
+            <p className="text-xs text-gray-500">
+              {doneCount}/{queue.length} uploaded{errorCount > 0 ? ` — ${errorCount} failed` : ""}
+            </p>
+          )}
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleUploadAll}
+              disabled={running || queue.length === 0 || allDone}
+              className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+            >
+              {running
+                ? "Uploading…"
+                : errorCount > 0
+                  ? `Retry ${errorCount} failed`
+                  : `Upload ${queue.length || ""} to library`}
+            </button>
+            {allDone && (
+              <button
+                type="button"
+                onClick={() => {
+                  reset();
+                  setOpen(false);
+                }}
+                className="text-sm font-medium text-gray-600 hover:text-gray-900"
+              >
+                Done
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>
