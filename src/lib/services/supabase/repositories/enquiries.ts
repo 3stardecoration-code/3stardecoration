@@ -30,6 +30,8 @@ export const enquiryRepository: EnquiryRepository = {
         message: input.message ?? null,
         status: "new",
         source: input.source,
+        ip: input.ip ?? null,
+        user_agent: input.user_agent ?? null,
       })
       .select("*")
       .single();
@@ -66,5 +68,30 @@ export const enquiryRepository: EnquiryRepository = {
     if (error) throw error;
     if (!data) throw new Error(`Enquiry not found: ${id}`);
     return data as Enquiry;
+  },
+
+  // --- rate limiting (public write path) ---
+  async countByIpSince(ip: string, sinceMinutes: number): Promise<number> {
+    const supabase = createSupabaseServiceClient();
+    const cutoff = new Date(Date.now() - sinceMinutes * 60_000).toISOString();
+    const { count, error } = await supabase
+      .from("enquiries")
+      .select("*", { count: "exact", head: true })
+      .eq("ip", ip)
+      .gte("created_at", cutoff);
+    if (error) throw error;
+    return count ?? 0;
+  },
+
+  async countByPhoneSince(phone: string, sinceMinutes: number): Promise<number> {
+    const supabase = createSupabaseServiceClient();
+    const cutoff = new Date(Date.now() - sinceMinutes * 60_000).toISOString();
+    const { count, error } = await supabase
+      .from("enquiries")
+      .select("*", { count: "exact", head: true })
+      .eq("phone", phone)
+      .gte("created_at", cutoff);
+    if (error) throw error;
+    return count ?? 0;
   },
 };

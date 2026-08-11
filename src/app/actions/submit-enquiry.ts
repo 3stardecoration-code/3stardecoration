@@ -1,13 +1,15 @@
 "use server";
 
 import { z } from "zod";
+import { headers } from "next/headers";
 import { getDataService } from "@/lib/services";
+import { checkEnquiryRateLimit, extractClientIp } from "@/lib/rate-limit";
 
 // ---------------------------------------------------------------------------
 // Zod schema — mirrors NewEnquiry but validated at the server boundary.
 // Honeypot field (_hp) must be empty; bots that fill it are silently dropped.
-// TODO(supabase): add Postgres-backed rate limiting (spec §12) once the
-//   `rate_limits` table exists — shared across serverless invocations.
+// Rate limiting (per IP and per phone number) lives in src/lib/rate-limit.ts,
+// backed by the enquiries table itself — see that file for thresholds.
 // ---------------------------------------------------------------------------
 const enquirySchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(120),
@@ -78,6 +80,15 @@ export async function submitEnquiry(
 
   const data = parsed.data;
 
+  const headerList = await headers();
+  const ip = extractClientIp(headerList);
+  const userAgent = headerList.get("user-agent");
+
+  const rateLimit = await checkEnquiryRateLimit(ip, data.phone);
+  if (!rateLimit.allowed) {
+    return { ok: false, error: rateLimit.message };
+  }
+
   try {
     const enquiry = await getDataService().enquiries.create({
       name: data.name,
@@ -92,6 +103,8 @@ export async function submitEnquiry(
       preferred_contact_time: data.preferred_contact_time || null,
       message: data.message || null,
       source: data.source,
+      ip,
+      user_agent: userAgent,
     });
     return { ok: true, enquiryId: enquiry.id };
   } catch (err) {

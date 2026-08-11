@@ -204,6 +204,9 @@ export interface EnquiryRepository {
   list(args?: { limit?: number; status?: EnquiryStatus }): Promise<{ data: Enquiry[] }>;
   getById(id: string): Promise<Enquiry | null>;
   update(id: string, patch: { status?: EnquiryStatus; notes?: string | null }): Promise<Enquiry>;
+  // --- rate limiting (public write path) ---
+  countByIpSince(ip: string, sinceMinutes: number): Promise<number>;
+  countByPhoneSince(phone: string, sinceMinutes: number): Promise<number>;
 }
 
 export interface SettingsRepository {

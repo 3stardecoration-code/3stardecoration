@@ -442,8 +442,8 @@ export const mockDataService: DataService = {
         assigned_to: null,
         notes: null,
         source: input.source,
-        ip: null,
-        user_agent: null,
+        ip: input.ip ?? null,
+        user_agent: input.user_agent ?? null,
         created_at: now,
       };
       enquiries.push(enquiry);
@@ -465,6 +465,14 @@ export const mockDataService: DataService = {
       if (!enquiry) throw new Error(`Enquiry not found: ${id}`);
       Object.assign(enquiry, patch);
       return enquiry;
+    },
+    async countByIpSince(ip: string, sinceMinutes: number): Promise<number> {
+      const cutoff = Date.now() - sinceMinutes * 60_000;
+      return enquiries.filter((e) => e.ip === ip && new Date(e.created_at).getTime() >= cutoff).length;
+    },
+    async countByPhoneSince(phone: string, sinceMinutes: number): Promise<number> {
+      const cutoff = Date.now() - sinceMinutes * 60_000;
+      return enquiries.filter((e) => e.phone === phone && new Date(e.created_at).getTime() >= cutoff).length;
     },
   },
 

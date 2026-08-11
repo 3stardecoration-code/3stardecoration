@@ -112,6 +112,13 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
           <NotesForm id={enquiry.id} notes={enquiry.notes} />
         </div>
       </div>
+
+      {(enquiry.ip || enquiry.user_agent) && (
+        <p className="mt-6 text-xs text-gray-400">
+          Submitted from {enquiry.ip ?? "an unknown IP"}
+          {enquiry.user_agent ? ` · ${enquiry.user_agent}` : ""}
+        </p>
+      )}
     </div>
   );
 }

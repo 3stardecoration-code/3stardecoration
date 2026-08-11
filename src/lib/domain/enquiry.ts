@@ -36,4 +36,6 @@ export interface NewEnquiry {
   preferred_contact_time?: string | null;
   message?: string | null;
   source: EnquirySource;
+  ip?: string | null;
+  user_agent?: string | null;
 }
