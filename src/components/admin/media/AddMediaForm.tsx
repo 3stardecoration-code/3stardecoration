@@ -20,11 +20,50 @@ type QueueItem = {
   file: File;
   altText: string;
   preview: string;
-  status: "pending" | "uploading" | "done" | "error";
+  status: "pending" | "compressing" | "uploading" | "done" | "error";
   error?: string;
 };
 
-const CONCURRENCY = 3;
+const CONCURRENCY = 4;
+const MAX_DIMENSION = 2400;
+const JPEG_QUALITY = 0.85;
+// Skip compressing files already smaller than this — nothing to gain.
+const SKIP_COMPRESS_UNDER_BYTES = 400_000;
+
+/**
+ * Downscales + re-encodes a photo in the browser before upload. A modern
+ * phone photo can be 5-15MB at full resolution; a website never needs more
+ * than ~2400px on the long edge, so this is the single biggest lever for
+ * "uploads feel slow" — it shrinks what actually has to travel over the wire.
+ */
+async function compressImage(file: File): Promise<File> {
+  if (!file.type.startsWith("image/") || file.type === "image/gif" || file.size < SKIP_COMPRESS_UNDER_BYTES) {
+    return file;
+  }
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const width = Math.round(bitmap.width * scale);
+    const height = Math.round(bitmap.height * scale);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+
+    const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY));
+    if (!blob || blob.size >= file.size) return file;
+
+    const newName = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+    return new File([blob], newName, { type: "image/jpeg" });
+  } catch {
+    // Any failure (unsupported format, decode error) — fall back to the original file.
+    return file;
+  }
+}
 
 /** "wedding-hall_03.jpg" -> "Wedding hall 03" (optionally prefixed with the parent folder name). */
 function humanize(file: File): string {
@@ -73,10 +112,13 @@ export function AddMediaForm() {
   }
 
   async function uploadOne(sign: SignResponse, item: QueueItem) {
-    setQueue((q) => q.map((i) => (i.id === item.id ? { ...i, status: "uploading" } : i)));
+    setQueue((q) => q.map((i) => (i.id === item.id ? { ...i, status: "compressing" } : i)));
     try {
+      const uploadFile = await compressImage(item.file);
+      setQueue((q) => q.map((i) => (i.id === item.id ? { ...i, status: "uploading" } : i)));
+
       const uploadForm = new FormData();
-      uploadForm.append("file", item.file);
+      uploadForm.append("file", uploadFile);
       uploadForm.append("api_key", sign.apiKey);
       uploadForm.append("timestamp", String(sign.timestamp));
       uploadForm.append("signature", sign.signature);
@@ -199,16 +241,17 @@ export function AddMediaForm() {
                   <input
                     value={item.altText}
                     onChange={(e) => updateAlt(item.id, e.target.value)}
-                    disabled={item.status === "uploading" || item.status === "done"}
+                    disabled={item.status === "compressing" || item.status === "uploading" || item.status === "done"}
                     className="input flex-1 py-1.5 text-sm"
                   />
                   <span className="w-20 shrink-0 text-right text-xs">
                     {item.status === "pending" && <span className="text-gray-400">Waiting</span>}
+                    {item.status === "compressing" && <span className="text-gray-500">Optimizing…</span>}
                     {item.status === "uploading" && <span className="text-gray-500">Uploading…</span>}
                     {item.status === "done" && <span className="text-emerald-600">Uploaded</span>}
                     {item.status === "error" && <span title={item.error} className="text-red-600">Failed</span>}
                   </span>
-                  {item.status !== "uploading" && item.status !== "done" && (
+                  {item.status !== "compressing" && item.status !== "uploading" && item.status !== "done" && (
                     <button
                       type="button"
                       onClick={() => removeItem(item.id)}
