@@ -9,12 +9,8 @@ type Props = {
   media: Record<string, MediaAsset>;
 };
 
-const FEATURED_SLUGS = ["wedding-decoration", "reception-styling", "engagement-setups", "birthday-baby-shower"];
-
 export function ServicesPreview({ services, media }: Props) {
-  const items = FEATURED_SLUGS.map((slug) => services.find((s) => s.slug === slug)).filter(
-    (s): s is Service => Boolean(s),
-  );
+  const items = services;
   if (items.length === 0) return null;
 
   return (
