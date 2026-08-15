@@ -63,7 +63,7 @@ export function Hero({ banner, stack }: Props) {
       {stack.length > 0 && (
         <div ref={cardsRef} aria-hidden className="pointer-events-none absolute inset-0">
           {stack[0] && (
-            <div className="hero-card absolute left-[1%] top-[6%] hidden w-[16vw] max-w-[230px] min-w-[150px] -rotate-6 border-[6px] border-porcelain shadow-[0_22px_50px_rgba(21,21,21,0.16)] lg:block xl:left-[4%]">
+            <div className="hero-card absolute left-[1%] top-[12%] hidden w-[16vw] max-w-[230px] min-w-[150px] -rotate-6 border-[6px] border-porcelain shadow-[0_22px_50px_rgba(21,21,21,0.16)] lg:block xl:left-[4%]">
               <div className="relative aspect-[4/5] w-full">
                 <MediaImage asset={stack[0]} fill sizes="20vw" />
               </div>

@@ -15,12 +15,16 @@ const NAV = [
 
 export function SiteHeader() {
   const pathname = usePathname();
-  // Pages with a full-bleed dark hero behind the header: project details
-  // (/portfolio/<slug>) + service details (/services/<slug>). The homepage
-  // hero is a light ivory scene, so it keeps the inked nav from frame one.
+  // Pages with a dark/espresso hero background behind the header before scrolling:
+  // - /services and all subpages (/services/*)
+  // - /about and all subpages (/about/*)
+  // - /contact and all subpages (/contact/*)
+  // - /portfolio/* (project detail pages)
   const overHero =
-    pathname.startsWith("/portfolio/") ||
-    (pathname.startsWith("/services/") && pathname !== "/services");
+    pathname.startsWith("/services") ||
+    pathname.startsWith("/about") ||
+    pathname.startsWith("/contact") ||
+    pathname.startsWith("/portfolio/");
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
