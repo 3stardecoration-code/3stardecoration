@@ -1,10 +1,33 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import type { MediaRepository, MediaListArgs, NewMediaAsset } from "@/lib/repositories";
 import type { MediaAsset } from "@/lib/domain";
 import { createSupabaseAnonClient, createSupabaseServiceClient } from "@/lib/supabase/server";
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+/** Best-effort delete of the underlying Cloudinary file so trashed assets don't keep consuming storage. */
+async function destroyCloudinaryAsset(publicId: string, resourceType: "image" | "video"): Promise<void> {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+  if (!cloudName || !apiKey || !apiSecret) return;
+
+  try {
+    const timestamp = Math.round(Date.now() / 1000);
+    const toSign = `public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
+    const signature = createHash("sha1").update(toSign).digest("hex");
+    const body = new URLSearchParams({ public_id: publicId, api_key: apiKey, timestamp: String(timestamp), signature });
+    await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/destroy`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+    });
+  } catch {
+    // Non-fatal — the DB row is still removed even if Cloudinary cleanup fails.
+  }
 }
 
 /**
@@ -232,5 +255,29 @@ export const mediaRepository: MediaRepository = {
       .maybeSingle();
     if (error) throw error;
     if (!data) throw new Error(`Media asset not found: ${id}`);
+  },
+
+  async emptyTrash(): Promise<number> {
+    const supabase = createSupabaseServiceClient();
+    const { data: trashed, error: fetchError } = await supabase
+      .from("media_assets")
+      .select("id, public_id, source")
+      .not("deleted_at", "is", null);
+    if (fetchError) throw fetchError;
+    const rows = trashed ?? [];
+    if (rows.length === 0) return 0;
+
+    await Promise.all(
+      rows
+        .filter((r) => r.public_id)
+        .map((r) => destroyCloudinaryAsset(r.public_id as string, r.source === "cloudinary_video" ? "video" : "image")),
+    );
+
+    const { error } = await supabase
+      .from("media_assets")
+      .delete()
+      .in("id", rows.map((r) => r.id));
+    if (error) throw error;
+    return rows.length;
   },
 };

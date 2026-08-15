@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getDataService } from "@/lib/services";
 import { ServiceTrashRow } from "@/components/admin/services/ServiceTrashRow";
+import { EmptyTrashButton } from "@/components/admin/EmptyTrashButton";
+import { emptyServicesTrash } from "@/app/actions/admin/services";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +14,10 @@ export default async function ServicesTrashPage() {
       <Link href="/admin/services" className="text-sm text-gray-500 hover:text-gray-900">
         ← All services
       </Link>
-      <h1 className="mt-4 text-2xl font-semibold text-gray-900">Services Trash</h1>
+      <div className="mt-4 flex items-start justify-between gap-4">
+        <h1 className="text-2xl font-semibold text-gray-900">Services Trash</h1>
+        <EmptyTrashButton action={emptyServicesTrash} itemLabel="services" disabled={trashed.length === 0} />
+      </div>
 
       {trashed.length === 0 ? (
         <p className="mt-16 text-center text-sm text-gray-500">Trash is empty.</p>

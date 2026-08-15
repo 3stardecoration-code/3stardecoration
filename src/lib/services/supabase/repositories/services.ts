@@ -63,6 +63,37 @@ export const serviceRepository: ServiceRepository = {
     return (data as Service | null) ?? null;
   },
 
+  async create(input: { title: string }): Promise<Service> {
+    const supabase = createSupabaseServiceClient();
+    let slug = input.title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+    const { data: existing } = await supabase
+      .from("services")
+      .select("id")
+      .eq("slug", slug)
+      .is("deleted_at", null)
+      .maybeSingle();
+    if (existing) slug = `${slug}-${Date.now().toString().slice(-5)}`;
+
+    const { data, error } = await supabase
+      .from("services")
+      .insert({
+        title: input.title,
+        slug,
+        sort_order: 0,
+        workflow_status: "draft",
+        robots_index: true,
+        robots_follow: true,
+      })
+      .select("*")
+      .single();
+    if (error) throw error;
+    return data as Service;
+  },
+
   async update(id: string, patch: ServicePatch): Promise<Service> {
     const supabase = createSupabaseServiceClient();
     const { data: current, error: fetchError } = await supabase
@@ -117,6 +148,13 @@ export const serviceRepository: ServiceRepository = {
       .maybeSingle();
     if (error) throw error;
     if (!data) throw new Error(`Service not found: ${id}`);
+  },
+
+  async emptyTrash(): Promise<number> {
+    const supabase = createSupabaseServiceClient();
+    const { data, error } = await supabase.from("services").delete().not("deleted_at", "is", null).select("id");
+    if (error) throw error;
+    return (data ?? []).length;
   },
 
   async reorder(order: SortOrderEntry[]): Promise<void> {

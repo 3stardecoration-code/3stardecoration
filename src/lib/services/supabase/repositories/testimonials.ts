@@ -116,4 +116,11 @@ export const testimonialRepository: TestimonialRepository = {
     if (error) throw error;
     if (!data) throw new Error(`Testimonial not found: ${id}`);
   },
+
+  async emptyTrash(): Promise<number> {
+    const supabase = createSupabaseServiceClient();
+    const { data, error } = await supabase.from("testimonials").delete().not("deleted_at", "is", null).select("id");
+    if (error) throw error;
+    return (data ?? []).length;
+  },
 };

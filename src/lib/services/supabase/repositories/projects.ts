@@ -255,6 +255,17 @@ export const projectRepository: ProjectRepository = {
     if (!data) throw new Error(`Project not found: ${id}`);
   },
 
+  async emptyTrash(): Promise<number> {
+    const supabase = createSupabaseServiceClient();
+    const { data, error } = await supabase
+      .from("projects")
+      .delete()
+      .not("deleted_at", "is", null)
+      .select("id");
+    if (error) throw error;
+    return (data ?? []).length;
+  },
+
   async reorder(order: SortOrderEntry[]): Promise<void> {
     const supabase = createSupabaseServiceClient();
     for (const { id, sort_order } of order) {

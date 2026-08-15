@@ -1,6 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { MediaImage } from "@/components/ui/MediaImage";
+import { Lightbox } from "@/components/portfolio/Lightbox";
 import type { MediaAsset } from "@/lib/domain";
 
 type Props = { images: MediaAsset[]; instagramUrl?: string };
@@ -10,6 +14,7 @@ const RATIOS = ["aspect-[3/4]", "aspect-square", "aspect-[4/5]", "aspect-[3/4]",
 
 export function InstagramStrip({ images, instagramUrl }: Props) {
   const shown = images.slice(0, 8);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
   if (shown.length === 0) return null;
 
   return (
@@ -35,7 +40,12 @@ export function InstagramStrip({ images, instagramUrl }: Props) {
         <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
           {shown.map((img, i) => (
             <Reveal key={img.id} delay={(i % 4) * 0.06} className="mb-3 block break-inside-avoid">
-              <div className={`group relative overflow-hidden bg-line ${RATIOS[i % RATIOS.length]}`}>
+              <button
+                type="button"
+                onClick={() => setOpenIndex(i)}
+                aria-label={`Open ${img.alt_text ?? "image"} in viewer`}
+                className={`group relative block w-full overflow-hidden bg-line ${RATIOS[i % RATIOS.length]}`}
+              >
                 <MediaImage
                   asset={img}
                   fill
@@ -52,11 +62,15 @@ export function InstagramStrip({ images, instagramUrl }: Props) {
                     </svg>
                   </span>
                 </span>
-              </div>
+              </button>
             </Reveal>
           ))}
         </div>
       </Container>
+
+      {openIndex !== null && (
+        <Lightbox images={shown} index={openIndex} onClose={() => setOpenIndex(null)} onIndexChange={setOpenIndex} />
+      )}
     </section>
   );
 }

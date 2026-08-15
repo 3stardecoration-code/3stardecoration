@@ -83,6 +83,8 @@ export interface ProjectRepository {
   update(id: string, patch: ProjectPatch): Promise<Project>;
   softDelete(id: string): Promise<void>;
   restore(id: string): Promise<void>;
+  /** Permanently deletes every project currently in the trash. Returns the number removed. */
+  emptyTrash(): Promise<number>;
   reorder(order: SortOrderEntry[]): Promise<void>;
 }
 
@@ -121,9 +123,11 @@ export interface ServiceRepository {
   listForAdmin(): Promise<Service[]>;
   listTrash(): Promise<Service[]>;
   getById(id: string): Promise<Service | null>;
+  create(input: { title: string }): Promise<Service>;
   update(id: string, patch: ServicePatch): Promise<Service>;
   softDelete(id: string): Promise<void>;
   restore(id: string): Promise<void>;
+  emptyTrash(): Promise<number>;
   reorder(order: SortOrderEntry[]): Promise<void>;
 }
 
@@ -146,6 +150,7 @@ export interface TestimonialRepository {
   update(id: string, patch: TestimonialPatch): Promise<Testimonial>;
   softDelete(id: string): Promise<void>;
   restore(id: string): Promise<void>;
+  emptyTrash(): Promise<number>;
 }
 
 export interface HeroRepository {
@@ -197,6 +202,8 @@ export interface MediaRepository {
   /** Rejected (throws) if the asset is still referenced anywhere (usage_count > 0). */
   softDelete(id: string): Promise<void>;
   restore(id: string): Promise<void>;
+  /** Permanently deletes every trashed asset (and its Cloudinary file, best-effort). Returns the number removed. */
+  emptyTrash(): Promise<number>;
 }
 
 export interface EnquiryRepository {

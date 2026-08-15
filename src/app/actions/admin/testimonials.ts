@@ -51,3 +51,10 @@ export async function restoreTestimonial(id: string): Promise<void> {
   revalidatePath("/admin/testimonials/trash");
   revalidatePublic();
 }
+
+export async function emptyTestimonialsTrash(): Promise<{ deleted: number }> {
+  await getAuthService().requireAdmin();
+  const deleted = await getDataService().testimonials.emptyTrash();
+  revalidatePath("/admin/testimonials/trash");
+  return { deleted };
+}

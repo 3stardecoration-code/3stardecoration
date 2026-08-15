@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getAuthService, getDataService } from "@/lib/services";
 import type { ServicePatch, SortOrderEntry } from "@/lib/repositories";
@@ -8,6 +9,15 @@ function revalidatePublic(slug?: string) {
   revalidatePath("/services");
   revalidatePath("/");
   if (slug) revalidatePath(`/services/${slug}`);
+}
+
+export async function createService(formData: FormData): Promise<void> {
+  await getAuthService().requireAdmin();
+  const title = String(formData.get("title") ?? "").trim();
+  if (!title) throw new Error("Title is required.");
+  const service = await getDataService().services.create({ title });
+  revalidatePath("/admin/services");
+  redirect(`/admin/services/${service.id}`);
 }
 
 export async function updateService(id: string, patch: ServicePatch): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -40,6 +50,13 @@ export async function restoreService(id: string): Promise<void> {
   revalidatePath("/admin/services");
   revalidatePath("/admin/services/trash");
   revalidatePublic();
+}
+
+export async function emptyServicesTrash(): Promise<{ deleted: number }> {
+  await getAuthService().requireAdmin();
+  const deleted = await getDataService().services.emptyTrash();
+  revalidatePath("/admin/services/trash");
+  return { deleted };
 }
 
 export async function reorderServices(order: SortOrderEntry[]): Promise<void> {

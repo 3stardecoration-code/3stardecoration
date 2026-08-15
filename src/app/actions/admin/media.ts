@@ -44,3 +44,10 @@ export async function restoreMediaAsset(id: string): Promise<void> {
   revalidatePath("/admin/media");
   revalidatePath("/admin/media/trash");
 }
+
+export async function emptyMediaTrash(): Promise<{ deleted: number }> {
+  await getAuthService().requireAdmin();
+  const deleted = await getDataService().media.emptyTrash();
+  revalidatePath("/admin/media/trash");
+  return { deleted };
+}

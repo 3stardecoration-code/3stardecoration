@@ -173,6 +173,14 @@ export const mockDataService: DataService = {
       if (!project) throw new Error(`Project not found: ${id}`);
       project.deleted_at = null;
     },
+    async emptyTrash(): Promise<number> {
+      const toRemove = fx.projects.filter((p) => p.deleted_at);
+      for (const p of toRemove) {
+        const idx = fx.projects.indexOf(p);
+        if (idx !== -1) fx.projects.splice(idx, 1);
+      }
+      return toRemove.length;
+    },
     async reorder(order: SortOrderEntry[]): Promise<void> {
       for (const { id, sort_order } of order) {
         const project = fx.projects.find((p) => p.id === id);
@@ -220,6 +228,31 @@ export const mockDataService: DataService = {
     async getById(id: string) {
       return fx.services.find((s) => s.id === id) ?? null;
     },
+    async create(input: { title: string }): Promise<Service> {
+      const id = `svc-${Date.now()}`;
+      let slug = slugify(input.title);
+      if (fx.services.some((s) => s.slug === slug && !s.deleted_at)) slug = `${slug}-${id.slice(-5)}`;
+      const service: Service = {
+        id,
+        title: input.title,
+        slug,
+        short_description: null,
+        description: null,
+        icon: null,
+        media_asset_id: null,
+        sort_order: fx.services.length,
+        workflow_status: "draft",
+        published_at: null,
+        meta_title: null,
+        meta_description: null,
+        og_media_asset_id: null,
+        robots_index: true,
+        robots_follow: true,
+        deleted_at: null,
+      };
+      fx.services.push(service);
+      return service;
+    },
     async update(id: string, patch: ServicePatch): Promise<Service> {
       const service = fx.services.find((s) => s.id === id);
       if (!service) throw new Error(`Service not found: ${id}`);
@@ -242,6 +275,14 @@ export const mockDataService: DataService = {
       const service = fx.services.find((s) => s.id === id);
       if (!service) throw new Error(`Service not found: ${id}`);
       service.deleted_at = null;
+    },
+    async emptyTrash(): Promise<number> {
+      const toRemove = fx.services.filter((s) => s.deleted_at);
+      for (const s of toRemove) {
+        const idx = fx.services.indexOf(s);
+        if (idx !== -1) fx.services.splice(idx, 1);
+      }
+      return toRemove.length;
     },
     async reorder(order: SortOrderEntry[]): Promise<void> {
       for (const { id, sort_order } of order) {
@@ -301,6 +342,14 @@ export const mockDataService: DataService = {
       const testimonial = fx.testimonials.find((t) => t.id === id);
       if (!testimonial) throw new Error(`Testimonial not found: ${id}`);
       testimonial.deleted_at = null;
+    },
+    async emptyTrash(): Promise<number> {
+      const toRemove = fx.testimonials.filter((t) => t.deleted_at);
+      for (const t of toRemove) {
+        const idx = fx.testimonials.indexOf(t);
+        if (idx !== -1) fx.testimonials.splice(idx, 1);
+      }
+      return toRemove.length;
     },
   },
 
@@ -418,6 +467,14 @@ export const mockDataService: DataService = {
       const asset = fx.mediaAssets.find((m) => m.id === id);
       if (!asset) throw new Error(`Media asset not found: ${id}`);
       asset.deleted_at = null;
+    },
+    async emptyTrash(): Promise<number> {
+      const toRemove = fx.mediaAssets.filter((m) => m.deleted_at);
+      for (const m of toRemove) {
+        const idx = fx.mediaAssets.indexOf(m);
+        if (idx !== -1) fx.mediaAssets.splice(idx, 1);
+      }
+      return toRemove.length;
     },
   },
 

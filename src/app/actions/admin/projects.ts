@@ -53,6 +53,13 @@ export async function restoreProject(id: string): Promise<void> {
   revalidatePublic();
 }
 
+export async function emptyProjectsTrash(): Promise<{ deleted: number }> {
+  await getAuthService().requireAdmin();
+  const deleted = await getDataService().projects.emptyTrash();
+  revalidatePath("/admin/portfolio/trash");
+  return { deleted };
+}
+
 export async function reorderProjects(order: SortOrderEntry[]): Promise<void> {
   await getAuthService().requireAdmin();
   await getDataService().projects.reorder(order);

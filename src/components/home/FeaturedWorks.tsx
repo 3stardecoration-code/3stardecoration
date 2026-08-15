@@ -11,7 +11,7 @@ export type ResolvedProject = {
 };
 
 export function FeaturedWorks({ items }: { items: ResolvedProject[] }) {
-  const [big, small1, small2] = items;
+  const shown = items.slice(0, 3);
 
   return (
     <section className="py-section">
@@ -32,43 +32,19 @@ export function FeaturedWorks({ items }: { items: ResolvedProject[] }) {
           </Link>
         </Reveal>
 
-        <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-12 md:items-start">
-          {big && (
-            <Reveal className="md:col-span-7">
+        <div className="mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-5 sm:grid-cols-2 lg:max-w-none lg:grid-cols-3">
+          {shown.map((item, i) => (
+            <Reveal key={item.project.id} delay={i * 0.08}>
               <TiltProjectCard
-                project={big.project}
-                cover={big.cover}
-                category={big.category}
-                priority
-                aspect="aspect-[4/5]"
-                sizes="(min-width: 768px) 45vw, 90vw"
+                project={item.project}
+                cover={item.cover}
+                category={item.category}
+                priority={i === 0}
+                aspect="aspect-[3/4]"
+                sizes="(min-width: 1024px) 28vw, (min-width: 640px) 42vw, 90vw"
               />
             </Reveal>
-          )}
-          <div className="grid grid-cols-1 gap-6 md:col-span-5">
-            {small1 && (
-              <Reveal delay={0.1}>
-                <TiltProjectCard
-                  project={small1.project}
-                  cover={small1.cover}
-                  category={small1.category}
-                  aspect="aspect-[4/3]"
-                  sizes="(min-width: 768px) 32vw, 90vw"
-                />
-              </Reveal>
-            )}
-            {small2 && (
-              <Reveal delay={0.18}>
-                <TiltProjectCard
-                  project={small2.project}
-                  cover={small2.cover}
-                  category={small2.category}
-                  aspect="aspect-[4/3]"
-                  sizes="(min-width: 768px) 32vw, 90vw"
-                />
-              </Reveal>
-            )}
-          </div>
+          ))}
         </div>
       </Container>
     </section>

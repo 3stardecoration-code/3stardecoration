@@ -14,9 +14,17 @@ export default async function AdminServicesPage() {
           <h1 className="text-2xl font-semibold text-gray-900">Services</h1>
           <p className="mt-1 text-sm text-gray-500">{services.length} services</p>
         </div>
-        <Link href="/admin/services/trash" className="text-sm font-medium text-gray-500 hover:text-gray-900">
-          Trash
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/admin/services/trash" className="text-sm font-medium text-gray-500 hover:text-gray-900">
+            Trash
+          </Link>
+          <Link
+            href="/admin/services/new"
+            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+          >
+            + New service
+          </Link>
+        </div>
       </div>
 
       <div className="mt-6">

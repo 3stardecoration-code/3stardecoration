@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getDataService } from "@/lib/services";
 import { TrashRow } from "@/components/admin/projects/TrashRow";
+import { EmptyTrashButton } from "@/components/admin/EmptyTrashButton";
+import { emptyProjectsTrash } from "@/app/actions/admin/projects";
 
 export const dynamic = "force-dynamic";
 
@@ -12,10 +14,15 @@ export default async function ProjectsTrashPage() {
       <Link href="/admin/portfolio" className="text-sm text-gray-500 hover:text-gray-900">
         ← All projects
       </Link>
-      <h1 className="mt-4 text-2xl font-semibold text-gray-900">Portfolio Trash</h1>
-      <p className="mt-1 text-sm text-gray-500">
-        Deleted projects are kept here until restored. Permanent deletion isn&apos;t available in this demo.
-      </p>
+      <div className="mt-4 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Portfolio Trash</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Deleted projects are kept here until restored or permanently removed.
+          </p>
+        </div>
+        <EmptyTrashButton action={emptyProjectsTrash} itemLabel="projects" disabled={trashed.length === 0} />
+      </div>
 
       {trashed.length === 0 ? (
         <p className="mt-16 text-center text-sm text-gray-500">Trash is empty.</p>
