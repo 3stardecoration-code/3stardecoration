@@ -9,8 +9,10 @@ import type { MediaAsset } from "@/lib/domain";
 
 type Props = { images: MediaAsset[]; instagramUrl?: string };
 
-// Varied ratios give the wall a Pinterest-style rhythm from a uniform source.
-const RATIOS = ["aspect-[3/4]", "aspect-square", "aspect-[4/5]", "aspect-[3/4]", "aspect-[4/5]", "aspect-square", "aspect-[3/4]", "aspect-[4/5]"];
+// A uniform ratio keeps every grid cell the same height so rows sit flush
+// with no gaps — a CSS grid (unlike true masonry) sizes each row by its
+// tallest cell, so varied ratios would leave whitespace under shorter tiles.
+const TILE_RATIO = "aspect-[4/5]";
 
 export function InstagramStrip({ images, instagramUrl }: Props) {
   const shown = images.slice(0, 8);
@@ -44,7 +46,7 @@ export function InstagramStrip({ images, instagramUrl }: Props) {
                 type="button"
                 onClick={() => setOpenIndex(i)}
                 aria-label={`Open ${img.alt_text ?? "image"} in viewer`}
-                className={`group relative block w-full overflow-hidden bg-line ${RATIOS[i % RATIOS.length]}`}
+                className={`group relative block w-full overflow-hidden bg-line ${TILE_RATIO}`}
               >
                 <MediaImage
                   asset={img}
