@@ -37,9 +37,9 @@ export function InstagramStrip({ images, instagramUrl }: Props) {
       </Container>
 
       <Container className="mt-14">
-        <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {shown.map((img, i) => (
-            <Reveal key={img.id} delay={(i % 4) * 0.06} className="mb-3 block break-inside-avoid">
+            <Reveal key={img.id} delay={(i % 4) * 0.06} className="block">
               <button
                 type="button"
                 onClick={() => setOpenIndex(i)}
