@@ -3,19 +3,22 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { updateProject, trashProject } from "@/app/actions/admin/projects";
+import { updateProject, trashProject, setProjectGallery } from "@/app/actions/admin/projects";
 import { MediaPicker } from "@/components/admin/MediaPicker";
-import type { Category, MediaAsset, Project, ProjectStatus, WorkflowStatus } from "@/lib/domain";
+import { MediaMultiPicker } from "@/components/admin/MediaMultiPicker";
+import type { Category, MediaAsset, Project, ProjectMedia, ProjectStatus, WorkflowStatus } from "@/lib/domain";
 
 const WORKFLOW_OPTIONS: WorkflowStatus[] = ["draft", "published", "unpublished"];
 const PROJECT_STATUS_OPTIONS: ProjectStatus[] = ["upcoming", "ongoing", "completed"];
 
 export function ProjectForm({
   project,
+  gallery,
   categories,
   mediaAssets,
 }: {
   project: Project;
+  gallery: ProjectMedia[];
   categories: Category[];
   mediaAssets: MediaAsset[];
 }) {
@@ -39,31 +42,37 @@ export function ProjectForm({
   const [coverId, setCoverId] = useState<string | null>(project.cover_media_asset_id);
   const [robotsIndex, setRobotsIndex] = useState(project.robots_index);
   const [robotsFollow, setRobotsFollow] = useState(project.robots_follow);
+  const [galleryIds, setGalleryIds] = useState<string[]>(
+    [...gallery].sort((a, b) => a.sort_order - b.sort_order).map((m) => m.media_asset_id),
+  );
 
   function save() {
     setError(null);
     setSaved(false);
     startTransition(async () => {
-      const res = await updateProject(project.id, {
-        title,
-        slug,
-        category_id: categoryId,
-        summary: summary || null,
-        description: description || null,
-        client_name: clientName || null,
-        location: location || null,
-        event_date: eventDate || null,
-        completion_date: completionDate || null,
-        project_status: projectStatus,
-        featured_on_homepage: featured,
-        workflow_status: workflowStatus,
-        cover_media_asset_id: coverId,
-        og_media_asset_id: coverId,
-        robots_index: robotsIndex,
-        robots_follow: robotsFollow,
-      });
-      if (res.ok) setSaved(true);
-      else setError(res.error);
+      const [res, galleryRes] = await Promise.all([
+        updateProject(project.id, {
+          title,
+          slug,
+          category_id: categoryId,
+          summary: summary || null,
+          description: description || null,
+          client_name: clientName || null,
+          location: location || null,
+          event_date: eventDate || null,
+          completion_date: completionDate || null,
+          project_status: projectStatus,
+          featured_on_homepage: featured,
+          workflow_status: workflowStatus,
+          cover_media_asset_id: coverId,
+          og_media_asset_id: coverId,
+          robots_index: robotsIndex,
+          robots_follow: robotsFollow,
+        }),
+        setProjectGallery(project.id, galleryIds),
+      ]);
+      if (res.ok && galleryRes.ok) setSaved(true);
+      else setError(!res.ok ? res.error : !galleryRes.ok ? galleryRes.error : "Something went wrong.");
     });
   }
 
@@ -159,6 +168,18 @@ export function ProjectForm({
           </div>
 
           <MediaPicker assets={mediaAssets} selectedId={coverId} onSelect={setCoverId} />
+
+          <div>
+            <MediaMultiPicker
+              assets={mediaAssets}
+              selectedIds={galleryIds}
+              onChange={setGalleryIds}
+              label="Gallery photos"
+            />
+            <p className="mt-1.5 text-xs text-gray-400">
+              Shown in the photo gallery on this project&apos;s detail page.
+            </p>
+          </div>
         </div>
 
         <div className="space-y-6">

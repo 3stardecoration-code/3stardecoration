@@ -86,6 +86,8 @@ export interface ProjectRepository {
   /** Permanently deletes every project currently in the trash. Returns the number removed. */
   emptyTrash(): Promise<number>;
   reorder(order: SortOrderEntry[]): Promise<void>;
+  /** Replaces the project's gallery with exactly this ordered list of media asset ids. */
+  setGallery(projectId: string, mediaAssetIds: string[]): Promise<ProjectMedia[]>;
 }
 
 export interface CategoryRepository {

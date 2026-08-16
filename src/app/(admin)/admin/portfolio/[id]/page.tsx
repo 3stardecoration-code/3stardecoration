@@ -14,5 +14,5 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
   ]);
   if (!res) notFound();
 
-  return <ProjectForm project={res.project} categories={categories} mediaAssets={mediaAssets} />;
+  return <ProjectForm project={res.project} gallery={res.media} categories={categories} mediaAssets={mediaAssets} />;
 }

@@ -8,7 +8,7 @@ import type {
   SortOrderEntry,
   Paginated,
 } from "@/lib/repositories";
-import type { Project } from "@/lib/domain";
+import type { Project, ProjectMedia } from "@/lib/domain";
 import { createSupabaseAnonClient, createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const DEFAULT_PAGE_SIZE = 9;
@@ -272,5 +272,19 @@ export const projectRepository: ProjectRepository = {
       const { error } = await supabase.from("projects").update({ sort_order }).eq("id", id);
       if (error) throw error;
     }
+  },
+
+  async setGallery(projectId, mediaAssetIds) {
+    const supabase = createSupabaseServiceClient();
+    const { error: deleteError } = await supabase.from("project_media").delete().eq("project_id", projectId);
+    if (deleteError) throw deleteError;
+    if (mediaAssetIds.length === 0) return [];
+
+    const { data, error } = await supabase
+      .from("project_media")
+      .insert(mediaAssetIds.map((media_asset_id, i) => ({ project_id: projectId, media_asset_id, sort_order: i })))
+      .select("*");
+    if (error) throw error;
+    return (data ?? []) as ProjectMedia[];
   },
 };

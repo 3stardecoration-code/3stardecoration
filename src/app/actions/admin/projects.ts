@@ -66,3 +66,20 @@ export async function reorderProjects(order: SortOrderEntry[]): Promise<void> {
   revalidatePath("/admin/portfolio");
   revalidatePublic();
 }
+
+export async function setProjectGallery(
+  id: string,
+  mediaAssetIds: string[],
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  await getAuthService().requireAdmin();
+  const before = await getDataService().projects.getById(id);
+  try {
+    await getDataService().projects.setGallery(id, mediaAssetIds);
+    revalidatePath("/admin/portfolio");
+    revalidatePath(`/admin/portfolio/${id}`);
+    if (before) revalidatePublic(before.project.slug);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Something went wrong." };
+  }
+}

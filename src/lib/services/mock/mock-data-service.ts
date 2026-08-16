@@ -187,6 +187,22 @@ export const mockDataService: DataService = {
         if (project) project.sort_order = sort_order;
       }
     },
+    async setGallery(projectId, mediaAssetIds) {
+      const existing = fx.projectMedia.filter((m) => m.project_id === projectId);
+      for (const m of existing) {
+        const idx = fx.projectMedia.indexOf(m);
+        if (idx !== -1) fx.projectMedia.splice(idx, 1);
+      }
+      const rows = mediaAssetIds.map((media_asset_id, i) => ({
+        id: `pm-${projectId}-${i}-${Date.now()}`,
+        project_id: projectId,
+        media_asset_id,
+        caption: null,
+        sort_order: i,
+      }));
+      fx.projectMedia.push(...rows);
+      return rows;
+    },
   },
 
   categories: {
