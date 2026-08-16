@@ -74,30 +74,32 @@ export function MediaMultiPicker({ assets, selectedIds, onChange, label = "Photo
             placeholder="Search media…"
             className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
           />
-          <div className="mt-3 grid max-h-72 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-6">
-            {filtered.map((asset) => {
-              const isSelected = selectedIds.includes(asset.id);
-              return (
-                <button
-                  key={asset.id}
-                  type="button"
-                  onClick={() => toggle(asset.id)}
-                  className={`relative aspect-square overflow-hidden rounded-lg ring-2 transition-all ${
-                    isSelected ? "ring-gray-900" : "ring-transparent hover:ring-gray-300"
-                  }`}
-                >
-                  <Image src={asset.secure_url} alt={asset.alt_text ?? ""} fill className="object-cover" />
-                  {isSelected && (
-                    <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-lg font-semibold text-white">
-                      ✓
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-            {filtered.length === 0 && (
-              <p className="col-span-full py-6 text-center text-sm text-gray-400">No media found.</p>
-            )}
+          <div className="mt-3 max-h-72 overflow-y-auto">
+            <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+              {filtered.map((asset) => {
+                const isSelected = selectedIds.includes(asset.id);
+                return (
+                  <button
+                    key={asset.id}
+                    type="button"
+                    onClick={() => toggle(asset.id)}
+                    className={`relative aspect-square overflow-hidden rounded-lg ring-2 transition-all ${
+                      isSelected ? "ring-gray-900" : "ring-transparent hover:ring-gray-300"
+                    }`}
+                  >
+                    <Image src={asset.secure_url} alt={asset.alt_text ?? ""} fill className="object-cover" />
+                    {isSelected && (
+                      <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-lg font-semibold text-white">
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+              {filtered.length === 0 && (
+                <p className="col-span-full py-6 text-center text-sm text-gray-400">No media found.</p>
+              )}
+            </div>
           </div>
         </div>
       )}
