@@ -22,6 +22,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
   const [youtube, setYoutube] = useState(settings.social_links?.youtube ?? "");
   const [metaTitle, setMetaTitle] = useState(settings.default_meta_title ?? "");
   const [metaDescription, setMetaDescription] = useState(settings.default_meta_description ?? "");
+  const [ga4Id, setGa4Id] = useState(settings.ga4_measurement_id ?? "");
 
   function save() {
     setError(null);
@@ -38,6 +39,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
         social_links: { instagram, facebook, youtube },
         default_meta_title: metaTitle,
         default_meta_description: metaDescription,
+        ga4_measurement_id: ga4Id.trim() || null,
       });
       if (res.ok) setSaved(true);
       else setError(res.error);
@@ -132,6 +134,33 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
             <span className="text-sm font-medium text-gray-700">Google Map embed URL (optional)</span>
             <input value={mapEmbed ?? ""} onChange={(e) => setMapEmbed(e.target.value)} className="input mt-1.5" />
           </label>
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-gray-200 p-5">
+        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Analytics</p>
+        <div className="mt-4 space-y-2">
+          <label className="block">
+            <span className="text-sm font-medium text-gray-700">Google Analytics measurement ID</span>
+            <input
+              value={ga4Id}
+              onChange={(e) => setGa4Id(e.target.value)}
+              placeholder="G-XXXXXXXXXX"
+              className="input mt-1.5 font-mono text-sm"
+            />
+          </label>
+          <p className="text-xs text-gray-400">
+            From your GA4 property at{" "}
+            <a
+              href="https://analytics.google.com"
+              target="_blank"
+              rel="noreferrer"
+              className="underline hover:text-gray-600"
+            >
+              analytics.google.com
+            </a>{" "}
+            (Admin → Data Streams → your web stream). Leave blank to disable tracking.
+          </p>
         </div>
       </section>
 
