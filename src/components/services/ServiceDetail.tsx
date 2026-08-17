@@ -19,8 +19,9 @@ export function ServiceDetail({ service, coverAsset, settings }: Props) {
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative min-h-[60vh] overflow-hidden bg-espresso text-ivory">
+      {/* Hero — shorter on mobile so a landscape cover photo isn't cropped down to a
+          narrow sliver; tall widescreen crop only kicks in once there's room for it. */}
+      <section className="relative min-h-[42vh] overflow-hidden bg-espresso text-ivory sm:min-h-[52vh] lg:min-h-[60vh]">
         {coverAsset && (
           <>
             <MediaImage
@@ -33,7 +34,7 @@ export function ServiceDetail({ service, coverAsset, settings }: Props) {
             <div className="absolute inset-0 z-10 bg-gradient-to-t from-espresso/80 via-espresso/30 to-transparent" />
           </>
         )}
-        <Container className="relative z-20 flex min-h-[60vh] flex-col justify-end pb-20 pt-40">
+        <Container className="relative z-20 flex min-h-[42vh] flex-col justify-end pb-16 pt-32 sm:min-h-[52vh] sm:pb-20 sm:pt-40 lg:min-h-[60vh]">
           <Reveal>
             <Link
               href="/services"

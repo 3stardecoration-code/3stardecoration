@@ -40,7 +40,7 @@ export function FeaturedWorks({ items }: { items: ResolvedProject[] }) {
                 cover={item.cover}
                 category={item.category}
                 priority={i === 0}
-                aspect="aspect-[3/4]"
+                aspect="aspect-[4/3] sm:aspect-[3/4]"
                 sizes="(min-width: 1024px) 28vw, (min-width: 640px) 42vw, 90vw"
               />
             </Reveal>
