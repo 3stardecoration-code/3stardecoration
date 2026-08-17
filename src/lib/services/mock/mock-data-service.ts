@@ -63,6 +63,7 @@ function withUsageCount(asset: MediaAsset): MediaAsset {
 // Mutable stores that live only for the process lifetime (mock, in-memory).
 const enquiries: Enquiry[] = [];
 let siteSettings = { ...fx.siteSettings };
+let aboutPageContent = { ...fx.aboutPageContent };
 
 export const mockDataService: DataService = {
   projects: {
@@ -559,6 +560,16 @@ export const mockDataService: DataService = {
     async update(patch) {
       siteSettings = { ...siteSettings, ...patch };
       return siteSettings;
+    },
+  },
+
+  about: {
+    async get() {
+      return aboutPageContent;
+    },
+    async update(patch) {
+      aboutPageContent = { ...aboutPageContent, ...patch };
+      return aboutPageContent;
     },
   },
 

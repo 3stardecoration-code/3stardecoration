@@ -10,6 +10,7 @@ import type {
   EnquiryRepository,
   SettingsRepository,
   LegalRepository,
+  AboutRepository,
 } from "./types";
 import type { AdminSession } from "@/lib/domain";
 
@@ -27,6 +28,7 @@ export interface DataService {
   enquiries: EnquiryRepository;
   settings: SettingsRepository;
   legal: LegalRepository;
+  about: AboutRepository;
 }
 
 export interface SignInResult {

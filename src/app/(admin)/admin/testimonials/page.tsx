@@ -30,7 +30,7 @@ export default async function AdminTestimonialsPage() {
       {testimonials.length === 0 ? (
         <p className="mt-16 text-center text-sm text-gray-500">No testimonials yet.</p>
       ) : (
-        <div className="mt-6 overflow-hidden rounded-xl border border-gray-200">
+        <div className="mt-6 overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
               <tr>

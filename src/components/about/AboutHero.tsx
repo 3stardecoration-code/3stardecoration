@@ -1,12 +1,17 @@
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import type { AboutPageContent } from "@/lib/domain";
+
+type Props = Pick<AboutPageContent, "hero_eyebrow" | "hero_title" | "hero_description">;
 
 /**
  * Hero section for /about.
  * Dark espresso background, editorial line-mask headline reveal.
  * Same motion pattern as ServicesHero — consistent across all listing-level pages.
  */
-export function AboutHero() {
+export function AboutHero({ hero_eyebrow, hero_title, hero_description }: Props) {
+  const lines = hero_title.split("\n").filter(Boolean);
+
   return (
     <section className="relative overflow-hidden bg-espresso pb-24 pt-40 text-ivory sm:pt-48">
       {/* Subtle noise grain for premium depth */}
@@ -24,45 +29,31 @@ export function AboutHero() {
 
       <Container className="relative">
         <Reveal>
-          <p className="eyebrow text-accent">Our story</p>
+          <p className="eyebrow text-accent">{hero_eyebrow}</p>
         </Reveal>
 
         <h1 className="display mt-5 max-w-3xl text-5xl leading-none sm:text-6xl lg:text-7xl">
-          <span className="line-mask">
-            <span
-              style={{
-                display: "block",
-                animationName: "about-slide-up",
-                animationDuration: "1.1s",
-                animationTimingFunction: "var(--ease-lux)",
-                animationFillMode: "both",
-                animationDelay: "0.1s",
-              }}
-            >
-              Crafted with care.
+          {lines.map((line, i) => (
+            <span key={i} className="line-mask">
+              <span
+                style={{
+                  display: "block",
+                  animationName: "about-slide-up",
+                  animationDuration: "1.1s",
+                  animationTimingFunction: "var(--ease-lux)",
+                  animationFillMode: "both",
+                  animationDelay: `${0.1 + i * 0.12}s`,
+                }}
+              >
+                {line}
+              </span>
             </span>
-          </span>
-          <span className="line-mask">
-            <span
-              style={{
-                display: "block",
-                animationName: "about-slide-up",
-                animationDuration: "1.1s",
-                animationTimingFunction: "var(--ease-lux)",
-                animationFillMode: "both",
-                animationDelay: "0.22s",
-              }}
-            >
-              Built to remember.
-            </span>
-          </span>
+          ))}
         </h1>
 
         <Reveal delay={0.4} y={20}>
           <p className="mt-8 max-w-xl text-[0.98rem] leading-relaxed text-ivory/70">
-            3 Star Decoration was born from a belief that every celebration deserves to be
-            extraordinary. For over a decade, we&apos;ve turned blank venues into unforgettable
-            experiences — one detail at a time.
+            {hero_description}
           </p>
         </Reveal>
       </Container>

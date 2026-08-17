@@ -12,6 +12,7 @@ import type {
   SiteSettings,
   SeoMeta,
   LegalPage,
+  AboutPageContent,
 } from "@/lib/domain";
 
 // ---------------------------------------------------------------------------
@@ -306,6 +307,55 @@ export const siteSettings: SiteSettings = {
   default_meta_description: "Weddings, receptions, and celebrations, beautifully designed.",
   default_og_media_asset_id: null,
   logo_media_asset_id: null,
+};
+
+export const aboutPageContent: AboutPageContent = {
+  hero_eyebrow: "Our story",
+  hero_title: "Crafted with care.\nBuilt to remember.",
+  hero_description:
+    "3 Star Decoration was born from a belief that every celebration deserves to be extraordinary. For over a decade, we've turned blank venues into unforgettable experiences — one detail at a time.",
+  story_eyebrow: "Who we are",
+  story_title: "More than decoration — a design philosophy.",
+  story_body:
+    "Founded in Chennai, 3 Star Decoration began with a single wedding and a conviction: that every celebration, regardless of scale, deserves a considered aesthetic. We don't apply templates. We listen, sketch, source, and build — from scratch, every time.\n\nOver the years, our work has spanned intimate home engagements to grand ballroom receptions, baby showers to corporate galas. The through-line is always the same: a quiet, luxury aesthetic that makes the event feel inevitable — as if it could only have looked this way.\n\nWe work with florals, fabrics, lighting, and furniture — shaping the atmosphere around your story, not ours. When the day arrives, you step in and everything simply is.",
+  story_image_asset_id: null,
+  story_badge_value: "10+",
+  story_badge_label: "Years of craft",
+  values: ["Bespoke design", "On-time delivery", "Zero-template approach", "Full-service setup", "Post-event cleanup"],
+  stats_eyebrow: "By the numbers",
+  stats_title: "A decade of celebrations",
+  stats: [
+    { value: 10, suffix: "+", label: "Years of craft", sublabel: "Founded 2014" },
+    { value: 500, suffix: "+", label: "Events decorated", sublabel: "And counting" },
+    { value: 15, suffix: "", label: "Cities served", sublabel: "Across Tamil Nadu" },
+    { value: 100, suffix: "%", label: "5-star reviews", sublabel: "Client satisfaction" },
+  ],
+  process_eyebrow: "How we work",
+  process_title: "Simple process. Extraordinary results.",
+  process_description:
+    "From first conversation to final bow — our process is designed to be effortless for you and meticulous behind the scenes.",
+  process_steps: [
+    {
+      title: "Consultation",
+      description:
+        "We start with a conversation — your vision, venue, guest count, and palette. No forms, no templates. Just listening.",
+    },
+    {
+      title: "Design & Proposal",
+      description:
+        "Our team sketches a custom mood board and itemised proposal. Every element is chosen deliberately — nothing filler.",
+    },
+    {
+      title: "Setup & Styling",
+      description:
+        "On the day, our crew arrives early and works quietly. By the time guests arrive, every detail is placed and perfect.",
+    },
+    {
+      title: "Handover & Wrap",
+      description:
+        "You celebrate. We handle all post-event dismantle and cleanup — leaving the venue exactly as we found it.",
+    },
+  ],
 };
 
 export const seoMeta: SeoMeta[] = [

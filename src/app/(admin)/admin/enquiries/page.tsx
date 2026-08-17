@@ -73,7 +73,7 @@ export default async function AdminEnquiriesPage({ searchParams }: { searchParam
           <p className="text-sm text-gray-500">New submissions from the quote form will appear in this list.</p>
         </div>
       ) : (
-        <div className="mt-6 overflow-hidden rounded-xl border border-gray-200">
+        <div className="mt-6 overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
               <tr>

@@ -57,7 +57,7 @@ export function ServicesTable({ services: initial }: { services: Service[] }) {
           </button>
         </div>
       )}
-      <div className="overflow-hidden rounded-xl border border-gray-200">
+      <div className="overflow-x-auto rounded-xl border border-gray-200">
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
             <tr>

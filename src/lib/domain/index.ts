@@ -8,3 +8,4 @@ export * from "./homepage";
 export * from "./enquiry";
 export * from "./settings";
 export * from "./admin";
+export * from "./about";

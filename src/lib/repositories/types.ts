@@ -17,6 +17,7 @@ import type {
   LegalPage,
   WorkflowStatus,
   ProjectStatus,
+  AboutPageContent,
 } from "@/lib/domain";
 
 export interface Paginated<T> {
@@ -222,6 +223,11 @@ export interface SettingsRepository {
   get(): Promise<SiteSettings>;
   getSeoForRoute(routeKey: string): Promise<SeoMeta | null>;
   update(patch: Partial<SiteSettings>): Promise<SiteSettings>;
+}
+
+export interface AboutRepository {
+  get(): Promise<AboutPageContent>;
+  update(patch: Partial<AboutPageContent>): Promise<AboutPageContent>;
 }
 
 export interface LegalRepository {

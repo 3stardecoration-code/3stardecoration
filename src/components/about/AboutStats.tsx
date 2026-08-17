@@ -3,13 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { Container } from "@/components/ui/Container";
-
-const STATS = [
-  { value: 10, suffix: "+", label: "Years of craft", sublabel: "Founded 2014" },
-  { value: 500, suffix: "+", label: "Events decorated", sublabel: "And counting" },
-  { value: 15, suffix: "", label: "Cities served", sublabel: "Across Tamil Nadu" },
-  { value: 100, suffix: "%", label: "5-star reviews", sublabel: "Client satisfaction" },
-];
+import type { AboutStat } from "@/lib/domain";
 
 /** Counts from 0 to `target` over `duration` ms, easing out. */
 function useCountUp(target: number, duration = 1800, trigger: boolean) {
@@ -85,7 +79,9 @@ function StatCard({
  * Count-up triggers once when the section scrolls into view.
  * Respects prefers-reduced-motion — shows final value immediately if set.
  */
-export function AboutStats() {
+type Props = { eyebrow: string; title: string; stats: AboutStat[] };
+
+export function AboutStats({ eyebrow, title, stats }: Props) {
   const ref = useRef<HTMLElement>(null);
   const [triggered, setTriggered] = useState(false);
 
@@ -120,17 +116,15 @@ export function AboutStats() {
             transitionTimingFunction: "var(--ease-lux)",
           }}
         >
-          <p className="eyebrow text-accent">By the numbers</p>
-          <h2 className="display mt-3 text-3xl text-ivory sm:text-4xl">
-            A decade of celebrations
-          </h2>
+          <p className="eyebrow text-accent">{eyebrow}</p>
+          <h2 className="display mt-3 text-3xl text-ivory sm:text-4xl">{title}</h2>
         </div>
 
         {/* Stat grid — dividers between cells */}
         <div className="grid grid-cols-2 divide-x divide-y divide-ivory/10 lg:grid-cols-4 lg:divide-y-0">
-          {STATS.map((stat, i) => (
+          {stats.map((stat, i) => (
             <StatCard
-              key={stat.label}
+              key={`${stat.label}-${i}`}
               value={stat.value}
               suffix={stat.suffix}
               label={stat.label}

@@ -53,10 +53,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AboutPage() {
   const db = getDataService();
-  const [settings, testimonials] = await Promise.all([
+  const [settings, testimonials, about] = await Promise.all([
     db.settings.get(),
     db.testimonials.listPublished(),
+    db.about.get(),
   ]);
+  const storyImage = about.story_image_asset_id ? await db.media.getById(about.story_image_asset_id) : null;
 
   const base = settings.canonical_base_url ?? "";
   const breadcrumb = {
@@ -74,10 +76,27 @@ export default async function AboutPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
       />
-      <AboutHero />
-      <AboutStory />
-      <AboutStats />
-      <AboutProcess />
+      <AboutHero
+        hero_eyebrow={about.hero_eyebrow}
+        hero_title={about.hero_title}
+        hero_description={about.hero_description}
+      />
+      <AboutStory
+        story_eyebrow={about.story_eyebrow}
+        story_title={about.story_title}
+        story_body={about.story_body}
+        story_badge_value={about.story_badge_value}
+        story_badge_label={about.story_badge_label}
+        values={about.values}
+        image={storyImage}
+      />
+      <AboutStats eyebrow={about.stats_eyebrow} title={about.stats_title} stats={about.stats} />
+      <AboutProcess
+        eyebrow={about.process_eyebrow}
+        title={about.process_title}
+        description={about.process_description}
+        steps={about.process_steps}
+      />
       <AboutTestimonials testimonials={testimonials} />
       <AboutCta settings={settings} />
     </>

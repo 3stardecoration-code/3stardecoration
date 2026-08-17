@@ -11,6 +11,7 @@ import { mediaRepository } from "./repositories/media";
 import { enquiryRepository } from "./repositories/enquiries";
 import { settingsRepository } from "./repositories/settings";
 import { legalRepository } from "./repositories/legal";
+import { aboutRepository } from "./repositories/about";
 
 export const supabaseDataService: DataService = {
   projects: projectRepository,
@@ -24,4 +25,5 @@ export const supabaseDataService: DataService = {
   enquiries: enquiryRepository,
   settings: settingsRepository,
   legal: legalRepository,
+  about: aboutRepository,
 };
