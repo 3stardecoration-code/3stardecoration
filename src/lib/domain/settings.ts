@@ -1,5 +1,6 @@
 export interface SiteSettings {
   business_phone: string | null;
+  owner_alt_phone: string | null;
   whatsapp_number: string | null;
   whatsapp_message_template: string | null;
   business_email: string | null;
@@ -14,6 +15,7 @@ export interface SiteSettings {
   default_meta_title: string | null;
   default_meta_description: string | null;
   default_og_media_asset_id: string | null;
+  logo_media_asset_id: string | null;
 }
 
 export interface SeoMeta {

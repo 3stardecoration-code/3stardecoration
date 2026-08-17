@@ -12,7 +12,7 @@ const NAV = [
   { href: "/quote", label: "Get a Quote" },
 ];
 
-export function SiteFooter({ settings }: { settings: SiteSettings }) {
+export function SiteFooter({ settings, logoUrl }: { settings: SiteSettings; logoUrl?: string | null }) {
   const year = new Date().getFullYear();
   const wa = whatsappUrl(
     settings.whatsapp_number,
@@ -25,7 +25,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
       <Container className="py-20">
         <div className="grid gap-14 md:grid-cols-[1.4fr_1fr_1fr]">
           <div className="max-w-sm">
-            <Logo className="h-10 w-auto" />
+            <Logo className="h-10 w-auto" src={logoUrl} />
             <p className="mt-5 text-sm leading-relaxed text-ivory/60">
               Cinematic, luxury event decoration — weddings, receptions, and every celebration
               in between, designed to be unforgettable.

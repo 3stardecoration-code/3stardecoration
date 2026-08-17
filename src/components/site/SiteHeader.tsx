@@ -13,7 +13,7 @@ const NAV = [
   { href: "/contact", label: "Contact" },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ logoUrl }: { logoUrl?: string | null } = {}) {
   const pathname = usePathname();
   // Pages with a dark/espresso hero background behind the header before scrolling:
   // - /services and all subpages (/services/*)
@@ -57,7 +57,7 @@ export function SiteHeader() {
     >
       <div className="mx-auto flex w-full max-w-[82rem] items-center justify-between px-6 sm:px-8 lg:px-12">
         <Link href="/" className="flex h-8 items-center sm:h-9" aria-label="3 Star Decoration — home">
-          <Logo priority className="h-full w-auto" />
+          <Logo priority className="h-full w-auto" src={logoUrl} />
         </Link>
 
         <nav className={`hidden items-center gap-9 lg:flex ${ink}`}>

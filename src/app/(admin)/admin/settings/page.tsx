@@ -4,7 +4,8 @@ import { SettingsForm } from "@/components/admin/settings/SettingsForm";
 export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
-  const settings = await getDataService().settings.get();
+  const db = getDataService();
+  const [settings, mediaAssets] = await Promise.all([db.settings.get(), db.media.listForAdmin()]);
 
   return (
     <div>
@@ -13,7 +14,7 @@ export default async function AdminSettingsPage() {
         Contact details, WhatsApp, and social links used across the entire public site.
       </p>
       <div className="mt-8">
-        <SettingsForm settings={settings} />
+        <SettingsForm settings={settings} mediaAssets={mediaAssets} />
       </div>
     </div>
   );

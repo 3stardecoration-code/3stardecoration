@@ -290,6 +290,7 @@ export const homepageSections: HomepageSection[] = [
 
 export const siteSettings: SiteSettings = {
   business_phone: "+91 00000 00000",
+  owner_alt_phone: null,
   whatsapp_number: "910000000000",
   whatsapp_message_template: "Hi 3 Star Decoration, I'd like a quote. {details}",
   business_email: "hello@example.com",
@@ -304,6 +305,7 @@ export const siteSettings: SiteSettings = {
   default_meta_title: "3 Star Decoration — Premium Event Decoration",
   default_meta_description: "Weddings, receptions, and celebrations, beautifully designed.",
   default_og_media_asset_id: null,
+  logo_media_asset_id: null,
 };
 
 export const seoMeta: SeoMeta[] = [

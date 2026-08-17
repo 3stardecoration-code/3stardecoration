@@ -10,7 +10,7 @@ import { Logo } from "./Logo";
  * this overlay only fades over it, so it never blocks LCP and crawlers/no-JS see
  * full content. Shown once per session; skipped entirely for reduced motion.
  */
-export function Preloader() {
+export function Preloader({ logoUrl }: { logoUrl?: string | null } = {}) {
   const reduced = usePrefersReducedMotion();
   const [active, setActive] = useState(false);
   const [count, setCount] = useState(0);
@@ -69,7 +69,7 @@ export function Preloader() {
       >
         <ThreeStarLoader loading={count < 100} />
         <div className="h-9">
-          <Logo className="h-full w-auto" priority />
+          <Logo className="h-full w-auto" priority src={logoUrl} />
         </div>
       </div>
       <div className="mt-8 h-px w-40 overflow-hidden bg-ivory/15">
