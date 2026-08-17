@@ -29,7 +29,7 @@ const SECTION_INFO: Record<string, { title: string; description: string }> = {
   },
   instagram: {
     title: "Instagram Wall",
-    description: "A Pinterest-style photo wall. Choose which photos appear, in any order.",
+    description: "A Pinterest-style photo wall. Choose which photos appear, and drag them into the order you want.",
   },
   quote_cta: {
     title: "Final Call to Action",

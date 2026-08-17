@@ -60,4 +60,33 @@ export const supabaseAuthService: AuthService = {
     if (!session) redirect("/admin/login");
     return session;
   },
+
+  async changePassword(currentPassword, newPassword) {
+    if (newPassword.length < 8) {
+      return { ok: false, error: "New password must be at least 8 characters." };
+    }
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user || !user.email) {
+      return { ok: false, error: "Not signed in." };
+    }
+
+    // Re-verify the current password before allowing the change — a valid
+    // session alone (e.g. a left-open browser tab) shouldn't be enough.
+    const { error: reauthError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword,
+    });
+    if (reauthError) {
+      return { ok: false, error: "Current password is incorrect." };
+    }
+
+    const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+    if (updateError) {
+      return { ok: false, error: updateError.message };
+    }
+    return { ok: true };
+  },
 };

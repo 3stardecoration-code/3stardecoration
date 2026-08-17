@@ -26,4 +26,8 @@ export const mockAuthService: AuthService = {
     // TODO(supabase): redirect('/admin/login') when no admin session. Mock: always returns the stub.
     return STUB_SESSION;
   },
+  async changePassword() {
+    // Mock: nothing to actually change. Mirrors the real service's validation only.
+    return { ok: true };
+  },
 };

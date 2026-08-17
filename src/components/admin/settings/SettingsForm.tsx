@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updateSettings } from "@/app/actions/admin/settings";
+import { ChangePasswordForm } from "@/components/admin/settings/ChangePasswordForm";
 import type { SiteSettings } from "@/lib/domain";
 
 export function SettingsForm({ settings }: { settings: SiteSettings }) {
@@ -133,6 +134,8 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
           </label>
         </div>
       </section>
+
+      <ChangePasswordForm />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 

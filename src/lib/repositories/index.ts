@@ -41,4 +41,6 @@ export interface AuthService {
   signOut(): Promise<void>;
   // Throws/redirects if no admin session; returns the session otherwise.
   requireAdmin(): Promise<AdminSession>;
+  /** Re-verifies currentPassword before setting newPassword. Caller must already be an authenticated admin. */
+  changePassword(currentPassword: string, newPassword: string): Promise<{ ok: true } | { ok: false; error: string }>;
 }

@@ -11,10 +11,25 @@ type Props = {
   label?: string;
 };
 
-/** Reusable inline multi-select media picker — used for gallery-style fields (e.g. Instagram wall). */
+/**
+ * Reusable inline multi-select media picker — used for gallery-style fields
+ * (e.g. Instagram wall, project galleries). The "selected" preview grid is
+ * drag-and-drop sortable: the order of `selectedIds` is what the public
+ * site renders, so dragging a thumbnail to a new spot reorders the array.
+ */
 export function MediaMultiPicker({ assets, selectedIds, onChange, label = "Photos" }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
+
+  function reorder(from: number, to: number) {
+    if (from === to) return;
+    const next = [...selectedIds];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    onChange(next);
+  }
 
   const selected = selectedIds
     .map((id) => assets.find((a) => a.id === id))
@@ -49,10 +64,41 @@ export function MediaMultiPicker({ assets, selectedIds, onChange, label = "Photo
         </button>
       </div>
 
-      <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-6">
-        {selected.map((asset) => (
-          <div key={asset.id} className="group relative aspect-square overflow-hidden rounded-lg border border-gray-200">
-            <Image src={asset.secure_url} alt={asset.alt_text ?? ""} fill className="object-cover" />
+      {selected.length > 0 && (
+        <p className="mt-3 text-xs text-gray-400">Drag to reorder — this is the order shown on the site.</p>
+      )}
+      <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6">
+        {selected.map((asset, index) => (
+          <div
+            key={asset.id}
+            draggable
+            onDragStart={() => setDragIndex(index)}
+            onDragOver={(e) => {
+              e.preventDefault();
+              if (index !== overIndex) setOverIndex(index);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (dragIndex !== null) reorder(dragIndex, index);
+              setDragIndex(null);
+              setOverIndex(null);
+            }}
+            onDragEnd={() => {
+              setDragIndex(null);
+              setOverIndex(null);
+            }}
+            className={`group relative aspect-square cursor-grab overflow-hidden rounded-lg border transition-all active:cursor-grabbing ${
+              dragIndex === index
+                ? "border-gray-400 opacity-40"
+                : overIndex === index && dragIndex !== null
+                  ? "border-gray-900"
+                  : "border-gray-200"
+            }`}
+          >
+            <Image src={asset.secure_url} alt={asset.alt_text ?? ""} fill className="pointer-events-none object-cover" />
+            <span className="absolute left-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-[10px] font-semibold text-white">
+              {index + 1}
+            </span>
             <button
               type="button"
               onClick={() => remove(asset.id)}
