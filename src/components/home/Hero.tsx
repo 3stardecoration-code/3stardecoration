@@ -2,13 +2,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { Reveal } from "@/components/ui/Reveal";
 
-// Mobile is narrow but tall, so the pillar is sized by width there (capped
-// well clear of the centred text); from sm: up there's enough horizontal
-// room to size by height instead, so it can grow to fill the viewport.
-const PILLAR_SIZE = "h-auto w-[26vw] max-w-[150px] sm:h-full sm:w-auto sm:max-w-none";
+// Phone and tablet are both narrower than they are tall, so the pillar is
+// sized by width there (capped well clear of the centred text); only from
+// lg: up is there enough horizontal room to size by height instead and let
+// it grow to fill the viewport.
+const PILLAR_SIZE = "h-auto w-[26vw] max-w-[150px] sm:w-[22vw] sm:max-w-[210px] lg:h-full lg:w-auto lg:max-w-none";
 // Keeps the pillar's top edge clear of the fixed header (which is
-// transparent until scrolled) at every breakpoint.
-const PILLAR_BOX = "absolute bottom-0 top-24 sm:top-28 lg:top-32";
+// transparent until scrolled) at every breakpoint. flex+justify-end pins
+// the image to the BOTTOM of this box — needed on mobile, where the image
+// is sized by width (h-auto) rather than h-full, so it wouldn't otherwise
+// stretch down to the bottom on its own.
+const PILLAR_BOX = "absolute bottom-0 top-24 flex flex-col justify-end sm:top-28 lg:top-32";
 
 /**
  * Homepage hero — a minimal wedding-mandap composition: the real pillar
