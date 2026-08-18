@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Reveal } from "@/components/ui/Reveal";
+import { Magnetic } from "@/components/ui/Magnetic";
 
 // Phone and tablet are both narrower than they are tall, so the pillar is
 // sized by width there (capped well clear of the centred text); only from
@@ -12,7 +13,8 @@ const PILLAR_SIZE = "h-auto w-[26vw] max-w-[150px] sm:w-[22vw] sm:max-w-[210px] 
 // the image to the BOTTOM of this box — needed on mobile, where the image
 // is sized by width (h-auto) rather than h-full, so it wouldn't otherwise
 // stretch down to the bottom on its own.
-const PILLAR_BOX = "absolute bottom-0 top-24 flex flex-col justify-end sm:top-28 lg:top-32";
+// Hidden on mobile per request — the pillars only show from sm: (tablet) up.
+const PILLAR_BOX = "absolute bottom-0 top-24 hidden flex-col justify-end sm:flex sm:top-28 lg:top-32";
 
 /**
  * Homepage hero — a minimal wedding-mandap composition: the real pillar
@@ -66,17 +68,31 @@ export function Hero() {
         </Reveal>
 
         <Reveal delay={0.32} y={16}>
-          <Link
-            href="/portfolio"
-            className="group mt-10 inline-flex items-center gap-2.5 rounded-lg bg-accent px-7 py-3.5 text-[0.8rem] font-medium uppercase tracking-[0.16em] text-ivory shadow-[0_10px_28px_rgba(201,164,106,0.35)] transition-colors duration-300 hover:bg-accent-deep"
-          >
-            View Portfolio
-            <span
-              aria-hidden
-              className="transition-transform duration-300 group-hover:translate-x-1"
-            >
-              →
+          <Link href="/portfolio" className="group mt-10 inline-flex items-center gap-4">
+            <span className="relative overflow-hidden text-[0.8rem] font-medium uppercase tracking-[0.16em] text-charcoal">
+              View Portfolio
+              <span className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-100 bg-charcoal/30 transition-transform duration-500 ease-[var(--ease-lux)] group-hover:scale-x-0" />
+              <span className="absolute inset-x-0 -bottom-0.5 h-px origin-right scale-x-0 bg-accent transition-transform duration-500 ease-[var(--ease-lux)] group-hover:scale-x-100" />
             </span>
+            <Magnetic strength={0.4}>
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-charcoal/25 text-charcoal transition-all duration-500 ease-[var(--ease-lux)] group-hover:border-accent group-hover:bg-accent group-hover:text-ivory">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  className="transition-transform duration-500 ease-[var(--ease-lux)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                >
+                  <path
+                    d="M4 12L12 4M12 4H5.5M12 4V10.5"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </Magnetic>
           </Link>
         </Reveal>
       </div>
