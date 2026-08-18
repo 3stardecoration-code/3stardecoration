@@ -40,6 +40,17 @@ export function Reveal({ children, className, y = 28, delay = 0, as = "div" }: P
       { threshold: 0.15, rootMargin: "0px 0px -6% 0px" },
     );
     io.observe(el);
+
+    // Belt-and-braces: some environments delay IntersectionObserver's first
+    // callback by a tick or more. Content that's already on screen at mount
+    // (most commonly above-the-fold hero copy) shouldn't ever be able to get
+    // stuck invisible waiting for that callback, so check directly too.
+    const rect = el.getBoundingClientRect();
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    if (rect.top < viewportHeight * 0.94 && rect.bottom > 0) {
+      setShown(true);
+    }
+
     return () => io.disconnect();
   }, [reduced]);
 

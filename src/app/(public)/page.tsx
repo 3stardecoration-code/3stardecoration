@@ -21,8 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const db = getDataService();
-  const [heroes, featured, services, testimonials, settings, sections, categories] = await Promise.all([
-    db.hero.listPublished(),
+  const [featured, services, testimonials, settings, sections, categories] = await Promise.all([
     db.projects.listFeatured(),
     db.services.listPublished(),
     db.testimonials.listPublished(),
@@ -33,18 +32,15 @@ export default async function HomePage() {
 
   const catById = new Map(categories.map((c) => [c.id, c]));
   const sectionByKey = new Map(sections.map((s) => [s.section_key, s]));
-  const heroConfig = sectionByKey.get("hero")?.config ?? {};
   const beforeAfterConfig = sectionByKey.get("before_after")?.config ?? {};
   const testimonialsConfig = sectionByKey.get("testimonials")?.config ?? {};
   const instagramConfig = sectionByKey.get("instagram")?.config ?? {};
-  const heroStackIds = (heroConfig.media_asset_ids as string[] | undefined) ?? [];
   const beforeId = beforeAfterConfig.before_media_asset_id as string | undefined;
   const afterId = beforeAfterConfig.after_media_asset_id as string | undefined;
   const testimonialsBgId = testimonialsConfig.background_media_asset_id as string | undefined;
   const instagramIds = (instagramConfig.media_asset_ids as string[] | undefined) ?? [];
 
   const ids = new Set<string>();
-  heroStackIds.forEach((id) => ids.add(id));
   featured.forEach((p) => p.cover_media_asset_id && ids.add(p.cover_media_asset_id));
   services.forEach((s) => s.media_asset_id && ids.add(s.media_asset_id));
   instagramIds.forEach((id) => ids.add(id));
@@ -52,11 +48,6 @@ export default async function HomePage() {
   if (afterId) ids.add(afterId);
   if (testimonialsBgId) ids.add(testimonialsBgId);
   const media = await db.media.getManyByIds([...ids]);
-
-  const heroBanner = heroes[0];
-  const heroStack: MediaAsset[] = heroStackIds
-    .map((id) => media[id])
-    .filter((m): m is MediaAsset => Boolean(m));
 
   const featuredResolved: ResolvedProject[] = featured.slice(0, 3).map((project) => ({
     project,
@@ -77,7 +68,7 @@ export default async function HomePage() {
 
   return (
     <>
-      {heroBanner && enabled.has("hero") && <Hero banner={heroBanner} stack={heroStack} />}
+      {enabled.has("hero") && <Hero />}
       <SignatureStatement />
       {enabled.has("featured_works") && <FeaturedWorks items={featuredResolved} />}
       {enabled.has("featured_services") && <ServicesPreview services={services} media={media} />}

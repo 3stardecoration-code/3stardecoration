@@ -9,7 +9,7 @@ import type { HomepageSection, MediaAsset } from "@/lib/domain";
 const SECTION_INFO: Record<string, { title: string; description: string }> = {
   hero: {
     title: "Hero",
-    description: "The first thing every visitor sees. Choose the two photos layered around your headline.",
+    description: "The first thing every visitor sees — the illustrated pillar and headline. Toggle it on or off here.",
   },
   featured_works: {
     title: "Featured Works",
@@ -60,9 +60,6 @@ function SectionCard({ section, mediaAssets }: { section: HomepageSection; media
   const [error, setError] = useState<string | null>(null);
 
   const [isEnabled, setIsEnabled] = useState(section.is_enabled);
-  const heroStackIds = (section.config.media_asset_ids as string[] | undefined) ?? [];
-  const [heroPhoto1, setHeroPhoto1] = useState<string | null>(heroStackIds[0] ?? null);
-  const [heroPhoto2, setHeroPhoto2] = useState<string | null>(heroStackIds[1] ?? null);
   const [beforeId, setBeforeId] = useState<string | null>(
     (section.config.before_media_asset_id as string | undefined) ?? null,
   );
@@ -80,9 +77,7 @@ function SectionCard({ section, mediaAssets }: { section: HomepageSection; media
     setError(null);
     setSaved(false);
     const config: Record<string, unknown> = {};
-    if (section.section_key === "hero") {
-      config.media_asset_ids = [heroPhoto1, heroPhoto2].filter((id): id is string => Boolean(id));
-    } else if (section.section_key === "before_after") {
+    if (section.section_key === "before_after") {
       config.before_media_asset_id = beforeId;
       config.after_media_asset_id = afterId;
     } else if (section.section_key === "testimonials") {
@@ -115,13 +110,6 @@ function SectionCard({ section, mediaAssets }: { section: HomepageSection; media
           Show on homepage
         </label>
       </div>
-
-      {section.section_key === "hero" && (
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
-          <MediaPicker assets={mediaAssets} selectedId={heroPhoto1} onSelect={setHeroPhoto1} label="Photo 1" />
-          <MediaPicker assets={mediaAssets} selectedId={heroPhoto2} onSelect={setHeroPhoto2} label="Photo 2" />
-        </div>
-      )}
 
       {section.section_key === "before_after" && (
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
