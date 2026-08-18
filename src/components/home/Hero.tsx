@@ -25,7 +25,7 @@ const PILLAR_BOX = "absolute bottom-0 top-24 hidden flex-col justify-end sm:flex
  */
 export function Hero() {
   return (
-    <section className="relative flex min-h-[88svh] w-full items-center justify-center overflow-hidden bg-ivory py-28 sm:py-32 lg:min-h-[92svh] lg:py-0">
+    <section className="relative flex min-h-[88svh] w-full items-center justify-center overflow-hidden bg-ivory py-20 sm:py-32 lg:min-h-[92svh] lg:py-0">
       {/* Pillars — anchored to the bottom corners, visible (narrower) at every breakpoint */}
       <div className={`pointer-events-none ${PILLAR_BOX} left-0 z-0`} aria-hidden>
         <Image
@@ -49,39 +49,41 @@ export function Hero() {
       </div>
 
       {/* Centre content */}
-      <div className="relative z-10 mx-auto flex max-w-xl flex-col items-center px-6 text-center sm:px-8">
+      <div className="relative z-10 mx-auto flex max-w-xs flex-col items-center px-6 text-center sm:max-w-xl sm:px-8">
         <Reveal>
-          <p className="eyebrow text-accent-deep">3 Star Decoration</p>
+          <p className="text-[0.62rem] font-medium uppercase tracking-[0.24em] text-accent-deep sm:text-[0.72rem] sm:tracking-[0.28em]">
+            3 Star Decoration
+          </p>
         </Reveal>
 
         <Reveal delay={0.1} y={20}>
-          <h1 className="display mt-6 text-[8.5vw] leading-[1.15] text-charcoal sm:text-4xl lg:text-5xl">
+          <h1 className="display mt-4 text-[6.8vw] leading-[1.2] text-charcoal sm:mt-6 sm:text-4xl sm:leading-[1.15] lg:text-5xl">
             We transform every celebration into a setting{" "}
             <em className="text-accent-deep">worth remembering.</em>
           </h1>
         </Reveal>
 
         <Reveal delay={0.22} y={16}>
-          <p className="mt-7 text-[0.8rem] font-medium uppercase tracking-[0.24em] text-stone">
+          <p className="mt-5 text-[0.68rem] font-medium uppercase tracking-[0.18em] text-stone sm:mt-7 sm:text-[0.8rem] sm:tracking-[0.24em]">
             Weddings · Receptions · Every Occasion
           </p>
         </Reveal>
 
         <Reveal delay={0.32} y={16}>
-          <Link href="/portfolio" className="group mt-10 inline-flex items-center gap-4">
-            <span className="relative overflow-hidden text-[0.8rem] font-medium uppercase tracking-[0.16em] text-charcoal">
+          <Link href="/portfolio" className="group mt-7 inline-flex items-center gap-3 sm:mt-10 sm:gap-4">
+            <span className="relative overflow-hidden text-[0.68rem] font-medium uppercase tracking-[0.12em] text-charcoal sm:text-[0.8rem] sm:tracking-[0.16em]">
               View Portfolio
               <span className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-100 bg-charcoal/30 transition-transform duration-500 ease-[var(--ease-lux)] group-hover:scale-x-0" />
               <span className="absolute inset-x-0 -bottom-0.5 h-px origin-right scale-x-0 bg-accent transition-transform duration-500 ease-[var(--ease-lux)] group-hover:scale-x-100" />
             </span>
             <Magnetic strength={0.4}>
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-charcoal/25 text-charcoal transition-all duration-500 ease-[var(--ease-lux)] group-hover:border-accent group-hover:bg-accent group-hover:text-ivory">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-charcoal/25 text-charcoal transition-all duration-500 ease-[var(--ease-lux)] group-hover:border-accent group-hover:bg-accent group-hover:text-ivory sm:h-11 sm:w-11">
                 <svg
-                  width="16"
-                  height="16"
+                  width="14"
+                  height="14"
                   viewBox="0 0 16 16"
                   fill="none"
-                  className="transition-transform duration-500 ease-[var(--ease-lux)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  className="transition-transform duration-500 ease-[var(--ease-lux)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 sm:h-4 sm:w-4"
                 >
                   <path
                     d="M4 12L12 4M12 4H5.5M12 4V10.5"
