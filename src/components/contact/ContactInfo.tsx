@@ -50,6 +50,12 @@ export function ContactInfo({ settings }: Props) {
       value: settings.business_phone,
       href: `tel:${settings.business_phone}`,
     },
+    settings.owner_alt_phone && {
+      icon: <PhoneIcon />,
+      label: "Alternative Phone",
+      value: settings.owner_alt_phone,
+      href: `tel:${settings.owner_alt_phone}`,
+    },
     settings.business_email && {
       icon: <MailIcon />,
       label: "Email",

@@ -38,9 +38,21 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Se
   const pageNum = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
 
   const db = getDataService();
-  const categories = await db.categories.list();
+  const [categories, services] = await Promise.all([db.categories.list(), db.services.listPublished()]);
   const catBySlug = new Map(categories.map((c) => [c.slug, c]));
   const catById = new Map(categories.map((c) => [c.id, c]));
+
+  // Only show category filters that correspond to a service you currently
+  // offer (matched loosely by name, e.g. "Wedding" <-> "Wedding Decoration")
+  // — so removing/renaming a service keeps the portfolio filters honest
+  // without needing a separate admin step. Categories are seeded ahead of
+  // time (incl. ones with no service yet, like Corporate/Stage), so this
+  // filter is what actually keeps them hidden until a matching service exists.
+  const serviceTitles = services.map((s) => s.title.toLowerCase());
+  const filterCategories = categories.filter((c) => {
+    const name = c.name.toLowerCase();
+    return serviceTitles.some((title) => title.includes(name) || name.includes(title));
+  });
 
   const result = await db.projects.listPublished({
     category_slug: activeCategory,
@@ -71,7 +83,7 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Se
         </Reveal>
 
         <div className="mt-12">
-          <CategoryFilter categories={categories} active={activeCategory} />
+          <CategoryFilter categories={filterCategories} active={activeCategory} />
         </div>
 
         {items.length === 0 ? (
