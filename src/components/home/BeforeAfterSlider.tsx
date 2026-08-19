@@ -29,9 +29,14 @@ export function BeforeAfterSlider({ before, after }: Props) {
     const onUp = () => setDragging(false);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+    // The OS can cancel a pointer sequence mid-gesture (e.g. an interrupting
+    // system gesture) — without handling this, dragging can get stuck true
+    // and the handle stops responding until the next full tap.
+    window.addEventListener("pointercancel", onUp);
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
     };
   }, [dragging, updateFromClientX]);
 
@@ -55,7 +60,7 @@ export function BeforeAfterSlider({ before, after }: Props) {
     <div
       ref={containerRef}
       onPointerDown={handlePointerDown}
-      className="group relative aspect-[16/10] w-full cursor-ew-resize select-none overflow-hidden bg-charcoal sm:aspect-[16/8]"
+      className="group relative aspect-[16/10] w-full touch-none cursor-ew-resize select-none overflow-hidden bg-charcoal sm:aspect-[16/8]"
     >
       {/* AFTER — full base layer */}
       <MediaImage asset={after} fill sizes="100vw" />
