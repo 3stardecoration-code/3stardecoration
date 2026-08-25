@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getDataService } from "@/lib/services";
 import { Hero } from "@/components/home/Hero";
+import { CraftingMoments } from "@/components/home/CraftingMoments";
 import { SignatureStatement } from "@/components/home/SignatureStatement";
 import { FeaturedWorks, type ResolvedProject } from "@/components/home/FeaturedWorks";
 import { ServicesPreview } from "@/components/home/ServicesPreview";
@@ -32,9 +33,11 @@ export default async function HomePage() {
 
   const catById = new Map(categories.map((c) => [c.id, c]));
   const sectionByKey = new Map(sections.map((s) => [s.section_key, s]));
+  const heroConfig = sectionByKey.get("hero")?.config ?? {};
   const beforeAfterConfig = sectionByKey.get("before_after")?.config ?? {};
   const testimonialsConfig = sectionByKey.get("testimonials")?.config ?? {};
   const instagramConfig = sectionByKey.get("instagram")?.config ?? {};
+  const heroImageId = heroConfig.background_media_asset_id as string | undefined;
   const beforeId = beforeAfterConfig.before_media_asset_id as string | undefined;
   const afterId = beforeAfterConfig.after_media_asset_id as string | undefined;
   const testimonialsBgId = testimonialsConfig.background_media_asset_id as string | undefined;
@@ -44,10 +47,12 @@ export default async function HomePage() {
   featured.forEach((p) => p.cover_media_asset_id && ids.add(p.cover_media_asset_id));
   services.forEach((s) => s.media_asset_id && ids.add(s.media_asset_id));
   instagramIds.forEach((id) => ids.add(id));
+  if (heroImageId) ids.add(heroImageId);
   if (beforeId) ids.add(beforeId);
   if (afterId) ids.add(afterId);
   if (testimonialsBgId) ids.add(testimonialsBgId);
   const media = await db.media.getManyByIds([...ids]);
+  const heroImage = heroImageId ? media[heroImageId] : undefined;
 
   const featuredResolved: ResolvedProject[] = featured.slice(0, 3).map((project) => ({
     project,
@@ -68,7 +73,8 @@ export default async function HomePage() {
 
   return (
     <>
-      {enabled.has("hero") && <Hero />}
+      {enabled.has("hero") && <Hero image={heroImage} />}
+      <CraftingMoments />
       <SignatureStatement />
       {enabled.has("featured_works") && <FeaturedWorks items={featuredResolved} />}
       {enabled.has("featured_services") && <ServicesPreview services={services} media={media} />}

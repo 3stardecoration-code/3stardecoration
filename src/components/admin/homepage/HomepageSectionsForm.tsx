@@ -9,7 +9,7 @@ import type { HomepageSection, MediaAsset } from "@/lib/domain";
 const SECTION_INFO: Record<string, { title: string; description: string }> = {
   hero: {
     title: "Hero",
-    description: "The first thing every visitor sees — the illustrated pillar and headline. Toggle it on or off here.",
+    description: "The first thing every visitor sees — headline plus a full-bleed photo. Choose the photo and toggle the section here.",
   },
   featured_works: {
     title: "Featured Works",
@@ -60,6 +60,9 @@ function SectionCard({ section, mediaAssets }: { section: HomepageSection; media
   const [error, setError] = useState<string | null>(null);
 
   const [isEnabled, setIsEnabled] = useState(section.is_enabled);
+  const [heroImageId, setHeroImageId] = useState<string | null>(
+    (section.config.background_media_asset_id as string | undefined) ?? null,
+  );
   const [beforeId, setBeforeId] = useState<string | null>(
     (section.config.before_media_asset_id as string | undefined) ?? null,
   );
@@ -77,7 +80,9 @@ function SectionCard({ section, mediaAssets }: { section: HomepageSection; media
     setError(null);
     setSaved(false);
     const config: Record<string, unknown> = {};
-    if (section.section_key === "before_after") {
+    if (section.section_key === "hero") {
+      config.background_media_asset_id = heroImageId;
+    } else if (section.section_key === "before_after") {
       config.before_media_asset_id = beforeId;
       config.after_media_asset_id = afterId;
     } else if (section.section_key === "testimonials") {
@@ -110,6 +115,20 @@ function SectionCard({ section, mediaAssets }: { section: HomepageSection; media
           Show on homepage
         </label>
       </div>
+
+      {section.section_key === "hero" && (
+        <div className="mt-5">
+          <MediaPicker
+            assets={mediaAssets}
+            selectedId={heroImageId}
+            onSelect={setHeroImageId}
+            label="Hero photo"
+          />
+          <p className="mt-2 text-xs text-gray-500">
+            Leave unset to use the default placeholder photo.
+          </p>
+        </div>
+      )}
 
       {section.section_key === "before_after" && (
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
