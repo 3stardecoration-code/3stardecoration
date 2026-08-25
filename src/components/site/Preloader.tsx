@@ -68,7 +68,7 @@ export function Preloader({ logoUrl }: { logoUrl?: string | null } = {}) {
         }}
       >
         <ThreeStarLoader loading={count < 100} />
-        <div className="h-9">
+        <div className="h-14">
           <Logo className="h-full w-auto" priority src={logoUrl} />
         </div>
       </div>

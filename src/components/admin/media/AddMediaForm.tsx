@@ -54,11 +54,18 @@ async function compressImage(file: File): Promise<File> {
     ctx.drawImage(bitmap, 0, 0, width, height);
     bitmap.close();
 
-    const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY));
+    // PNGs (logos, icons) often carry transparency — re-encoding those as
+    // JPEG would flatten the alpha channel onto black. Keep those lossless;
+    // only photographic formats get JPEG'd down.
+    const preserveAlpha = file.type === "image/png";
+    const outputType = preserveAlpha ? "image/png" : "image/jpeg";
+    const blob: Blob | null = await new Promise((resolve) =>
+      canvas.toBlob(resolve, outputType, preserveAlpha ? undefined : JPEG_QUALITY),
+    );
     if (!blob || blob.size >= file.size) return file;
 
-    const newName = file.name.replace(/\.[^.]+$/, "") + ".jpg";
-    return new File([blob], newName, { type: "image/jpeg" });
+    const newName = file.name.replace(/\.[^.]+$/, "") + (preserveAlpha ? ".png" : ".jpg");
+    return new File([blob], newName, { type: outputType });
   } catch {
     // Any failure (unsupported format, decode error) — fall back to the original file.
     return file;
