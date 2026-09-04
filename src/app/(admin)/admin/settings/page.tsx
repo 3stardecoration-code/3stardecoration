@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
   const db = getDataService();
-  const [settings, mediaAssets] = await Promise.all([db.settings.get(), db.media.listForAdmin()]);
+  const settings = await db.settings.get();
 
   return (
     <div>
@@ -14,8 +14,9 @@ export default async function AdminSettingsPage() {
         Contact details, WhatsApp, and social links used across the entire public site.
       </p>
       <div className="mt-8">
-        <SettingsForm settings={settings} mediaAssets={mediaAssets} />
+        <SettingsForm settings={settings} />
       </div>
     </div>
   );
 }
+

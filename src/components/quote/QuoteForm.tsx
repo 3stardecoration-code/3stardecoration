@@ -327,7 +327,6 @@ export function QuoteForm({ settings }: Props) {
               name="name"
               type="text"
               autoComplete="name"
-              placeholder="Priya Sharma"
               required
               value={values.name}
               onChange={setField("name")}
@@ -338,7 +337,6 @@ export function QuoteForm({ settings }: Props) {
               name="phone"
               type="tel"
               autoComplete="tel"
-              placeholder="+91 98765 43210"
               required
               value={values.phone}
               onChange={setField("phone")}
@@ -353,7 +351,6 @@ export function QuoteForm({ settings }: Props) {
               name="email"
               type="email"
               autoComplete="email"
-              placeholder="priya@example.com"
               value={values.email}
               onChange={setField("email")}
               errors={fieldErrors.email}
@@ -391,7 +388,6 @@ export function QuoteForm({ settings }: Props) {
               label="Event City"
               name="event_city"
               type="text"
-              placeholder="Chennai"
               value={values.event_city}
               onChange={setField("event_city")}
               errors={fieldErrors.event_city}
@@ -400,7 +396,6 @@ export function QuoteForm({ settings }: Props) {
               label="Venue / Hall Name"
               name="venue"
               type="text"
-              placeholder="Grand Ballroom, Taj"
               value={values.venue}
               onChange={setField("venue")}
               errors={fieldErrors.venue}
@@ -414,7 +409,6 @@ export function QuoteForm({ settings }: Props) {
               name="guest_count"
               type="number"
               min="1"
-              placeholder="150"
               value={values.guest_count}
               onChange={setField("guest_count")}
               errors={fieldErrors.guest_count}
@@ -448,7 +442,6 @@ export function QuoteForm({ settings }: Props) {
               id="qf-message"
               name="message"
               rows={4}
-              placeholder="Theme ideas, colour palette, specific requirements..."
               value={values.message}
               onChange={(e) => setField("message")(e.target.value)}
               className={`mt-1 w-full rounded-xl border px-4 py-3 text-sm text-charcoal outline-none ring-0 transition-all placeholder:text-stone focus:border-accent focus:ring-2 focus:ring-accent/20 ${

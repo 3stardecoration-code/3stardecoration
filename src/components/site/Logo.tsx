@@ -1,26 +1,31 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 
 type Props = {
   className?: string;
+  style?: CSSProperties;
   priority?: boolean;
-  /** Overrides the default mark — an admin-uploaded logo from Settings, when one is set. */
-  src?: string | null;
+  /** 'black' | 'white' to pick between the dark mark and light mark. Defaults to 'black'. */
+  variant?: "black" | "white";
 };
 
 /**
- * The 3 Star Decoration brand mark. Defaults to the built-in transparent
- * PNG (public/brand/logo.png); admins can replace it from Admin → Settings
- * → Website logo without a code change.
+ * The 3 Star Decoration brand mark.
+ * Uses built-in PNGs: /brand/logo-black.png (dark contexts) and
+ * /brand/logo-white.png (light-on-dark contexts).
  */
-export function Logo({ className, priority, src }: Props) {
+export function Logo({ className, style, priority, variant = "black" }: Props) {
+  const src = variant === "white" ? "/brand/logo-white.png" : "/brand/logo-black.png";
+
   return (
     <Image
-      src={src || "/brand/logo.png"}
+      src={src}
       alt="3 Star Decoration"
-      width={900}
-      height={408}
+      width={420}
+      height={222}
       priority={priority}
       className={className}
+      style={style}
     />
   );
 }

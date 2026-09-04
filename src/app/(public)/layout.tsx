@@ -9,8 +9,6 @@ import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const db = getDataService();
   const settings = await db.settings.get();
-  const logoAsset = settings.logo_media_asset_id ? await db.media.getById(settings.logo_media_asset_id) : null;
-  const logoUrl = logoAsset?.secure_url ?? null;
 
   return (
     <SmoothScrollProvider>
@@ -19,10 +17,11 @@ export default async function PublicLayout({ children }: { children: React.React
           <GoogleAnalytics measurementId={settings.ga4_measurement_id} />
         </Suspense>
       )}
-      <Preloader logoUrl={logoUrl} />
-      <SiteHeader logoUrl={logoUrl} />
+      <Preloader />
+      <SiteHeader />
       <main id="main">{children}</main>
-      <SiteFooter settings={settings} logoUrl={logoUrl} />
+      <SiteFooter settings={settings} />
     </SmoothScrollProvider>
   );
 }
+

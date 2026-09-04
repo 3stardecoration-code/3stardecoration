@@ -3,10 +3,9 @@
 import { useState, useTransition } from "react";
 import { updateSettings } from "@/app/actions/admin/settings";
 import { ChangePasswordForm } from "@/components/admin/settings/ChangePasswordForm";
-import { MediaPicker } from "@/components/admin/MediaPicker";
-import type { MediaAsset, SiteSettings } from "@/lib/domain";
+import type { SiteSettings } from "@/lib/domain";
 
-export function SettingsForm({ settings, mediaAssets }: { settings: SiteSettings; mediaAssets: MediaAsset[] }) {
+export function SettingsForm({ settings }: { settings: SiteSettings }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -14,7 +13,7 @@ export function SettingsForm({ settings, mediaAssets }: { settings: SiteSettings
   const [siteName, setSiteName] = useState(settings.site_name ?? "");
   const [businessPhone, setBusinessPhone] = useState(settings.business_phone ?? "");
   const [ownerAltPhone, setOwnerAltPhone] = useState(settings.owner_alt_phone ?? "");
-  const [logoId, setLogoId] = useState<string | null>(settings.logo_media_asset_id);
+
   const [whatsappNumber, setWhatsappNumber] = useState(settings.whatsapp_number ?? "");
   const [whatsappTemplate, setWhatsappTemplate] = useState(settings.whatsapp_message_template ?? "");
   const [businessEmail, setBusinessEmail] = useState(settings.business_email ?? "");
@@ -35,7 +34,7 @@ export function SettingsForm({ settings, mediaAssets }: { settings: SiteSettings
         site_name: siteName,
         business_phone: businessPhone,
         owner_alt_phone: ownerAltPhone || null,
-        logo_media_asset_id: logoId,
+        logo_media_asset_id: null,
         whatsapp_number: whatsappNumber,
         whatsapp_message_template: whatsappTemplate,
         business_email: businessEmail,
@@ -86,16 +85,7 @@ export function SettingsForm({ settings, mediaAssets }: { settings: SiteSettings
         </div>
       </section>
 
-      <section className="rounded-xl border border-gray-200 p-5">
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Website logo</p>
-        <div className="mt-4">
-          <MediaPicker assets={mediaAssets} selectedId={logoId} onSelect={setLogoId} label="Logo" />
-          <p className="mt-2 text-xs text-gray-400">
-            Used in the site header, footer, and preloader. Upload it in the Media Library first if it isn&apos;t
-            there yet, then pick it here. Falls back to the default mark when none is set.
-          </p>
-        </div>
-      </section>
+
 
       <section className="rounded-xl border border-gray-200 p-5">
         <p className="text-xs font-medium uppercase tracking-wide text-gray-400">WhatsApp</p>

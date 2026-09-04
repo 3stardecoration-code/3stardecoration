@@ -8,14 +8,14 @@ import { Reveal } from "@/components/ui/Reveal";
  */
 export function SignatureStatement() {
   return (
-    <section className="bg-ivory py-40 sm:py-52">
+    <section className="bg-ivory py-20 sm:py-28">
       <Container>
-        <div className="mx-auto max-w-4xl text-center">
+        <div className="mx-auto max-w-3xl text-center">
           <Reveal y={20}>
-            <p className="display text-3xl text-stone sm:text-4xl">An empty room.</p>
+            <p className="display text-2xl text-stone sm:text-3xl">An empty room.</p>
           </Reveal>
           <Reveal y={24} delay={0.15}>
-            <p className="display mt-3 text-[12vw] italic leading-[0.95] text-charcoal sm:text-[6.5rem]">
+            <p className="display mt-2 text-[9vw] italic leading-[0.95] text-charcoal sm:text-[4.5rem]">
               Then, everything <span className="text-accent">you imagined.</span>
             </p>
           </Reveal>

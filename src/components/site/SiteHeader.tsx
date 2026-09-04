@@ -13,7 +13,7 @@ const NAV = [
   { href: "/contact", label: "Contact" },
 ];
 
-export function SiteHeader({ logoUrl }: { logoUrl?: string | null } = {}) {
+export function SiteHeader() {
   const pathname = usePathname();
   // Pages with a dark/espresso hero background behind the header before scrolling:
   // - /services and all subpages (/services/*)
@@ -45,18 +45,39 @@ export function SiteHeader({ logoUrl }: { logoUrl?: string | null } = {}) {
   // Light (over hero, not scrolled) vs. inked (scrolled or non-hero pages).
   const light = overHero && !scrolled && !menuOpen;
   const ink = light ? "text-ivory" : "text-charcoal";
+  const showWhiteLogo = light || menuOpen;
 
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-[background,box-shadow,padding] duration-500 ${scrolled && !menuOpen
-        ? "bg-ivory/80 py-4 shadow-[0_1px_0_rgba(23,19,15,0.06)] backdrop-blur-xl"
+        ? "bg-ivory/80 py-2.5 sm:py-5 shadow-[0_1px_0_rgba(23,19,15,0.06)] backdrop-blur-xl"
         : "bg-transparent py-6"
         }`}
       style={{ transitionTimingFunction: "var(--ease-lux)" }}
     >
       <div className="mx-auto flex w-full max-w-[82rem] items-center justify-between px-6 sm:px-8 lg:px-12">
-        <Link href="/" className="flex h-8 items-center sm:h-9" aria-label="3 Star Decoration — home">
-          <Logo priority className="h-14 w-auto sm:h-16" src={logoUrl} />
+        <Link
+          href="/"
+          className={`relative transition-[height,width] duration-500 ${scrolled && !menuOpen
+            ? "h-11 w-[6rem] sm:h-12 sm:w-[6.8rem]"
+            : "h-14 w-[7.5rem] sm:h-16 sm:w-[8.5rem]"
+            }`}
+          style={{ transitionTimingFunction: "var(--ease-lux)" }}
+          aria-label="3 Star Decoration — home"
+        >
+          {/* Both logos occupy the same absolute position — only opacity changes */}
+          <Logo
+            variant="black"
+            priority
+            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-700"
+            style={{ opacity: showWhiteLogo ? 0 : 1, transitionTimingFunction: "var(--ease-lux)" }}
+          />
+          <Logo
+            variant="white"
+            priority
+            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-700"
+            style={{ opacity: showWhiteLogo ? 1 : 0, transitionTimingFunction: "var(--ease-lux)" }}
+          />
         </Link>
 
         <nav className={`hidden items-center gap-9 lg:flex ${ink}`}>
