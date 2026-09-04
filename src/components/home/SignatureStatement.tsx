@@ -8,7 +8,7 @@ import { Reveal } from "@/components/ui/Reveal";
  */
 export function SignatureStatement() {
   return (
-    <section className="bg-ivory py-20 sm:py-28">
+    <section className="bg-ivory py-15 sm:py-21">
       <Container>
         <div className="mx-auto max-w-3xl text-center">
           <Reveal y={20}>
