@@ -40,7 +40,7 @@ export function ServicesPreview({ services, media }: Props) {
           return (
             <Reveal key={service.id} y={30}>
               <Link
-                href="/services"
+                href={`/services/${service.slug}`}
                 className={`group grid grid-cols-1 items-stretch lg:grid-cols-2 ${
                   reversed ? "lg:[&>*:first-child]:order-2" : ""
                 }`}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getDataService } from "@/lib/services";
 import { ServiceDetail } from "@/components/services/ServiceDetail";
+import { ServiceBackHandler } from "@/components/services/ServiceBackHandler";
 
 // ISR + on-demand revalidation (admin publish/edit calls revalidatePath).
 export const revalidate = 3600;
@@ -78,6 +79,7 @@ export default async function ServiceDetailPage({ params }: { params: Params }) 
 
   return (
     <>
+      <ServiceBackHandler />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
