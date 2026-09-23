@@ -34,9 +34,10 @@ export function CraftingMoments() {
     <section className="relative overflow-hidden bg-ivory py-14 sm:py-24 lg:py-28">
       <Container className="relative">
         <Reveal className="text-center">
-          <p className="eyebrow">Crafting Moments</p>
+          {/* ← Adjust sizes here: clamp(min, preferred, max) */}
+          <p className="eyebrow" style={{ fontSize: "clamp(0.90rem, 1.5vw, 1.5rem)" }}>Since 1989</p>
           <h2 className="display mt-3 text-3xl sm:mt-4 sm:text-5xl">
-            Creating <em className="text-accent-deep">Memories</em>
+            Decorating celebrations, <em className="text-accent-deep">Creating memories.</em>
           </h2>
           <div className="mx-auto mt-4 flex items-center justify-center gap-3 sm:mt-6">
             <span className="h-px w-10 bg-line sm:w-16" />

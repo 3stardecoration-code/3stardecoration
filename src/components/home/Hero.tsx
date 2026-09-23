@@ -88,8 +88,8 @@ export function Hero({ image }: Props) {
 
           <Reveal delay={0.1} y={20}>
             <h1 className="display mt-4 text-[clamp(1.85rem,6.8vw,2.35rem)] leading-[1.08] tracking-[-0.015em] text-charcoal sm:mt-6 sm:text-5xl sm:leading-[1.1] lg:text-[3.4rem] lg:leading-[1.02]">
-              We transform every celebration into a setting{" "}
-              <em className="text-accent-deep">worth remembering.</em>
+              Three decades of dedication.{" "}
+              <em className="text-accent-deep">A legacy of celebration.</em>
             </h1>
           </Reveal>
 

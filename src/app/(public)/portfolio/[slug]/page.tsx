@@ -199,9 +199,9 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
       <section className="bg-espresso py-20 text-ivory sm:py-24">
         <Container className="text-center">
           <Reveal className="mx-auto max-w-2xl">
-            <p className="eyebrow">Planning something similar?</p>
+            <p className="eyebrow">Have an upcoming event?</p>
             <p className="display mt-5 text-3xl sm:text-5xl">
-              Let&apos;s design yours, start to finish.
+              Tell us about your event and our team will help you create a beautiful setting that reflects your occasion.
             </p>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
               <Link
