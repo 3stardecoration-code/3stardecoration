@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useAdminNav } from "./AdminNavContext";
+import { Logo } from "@/components/site/Logo";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/admin", icon: HomeIcon },
@@ -17,7 +18,7 @@ const NAV_ITEMS = [
   { label: "Settings", href: "/admin/settings", icon: SettingsIcon },
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ logoUrl }: { logoUrl?: string | null }) {
   const pathname = usePathname();
   const { open, setOpen } = useAdminNav();
 
@@ -44,10 +45,9 @@ export function AdminSidebar() {
       >
         {/* Logo Area */}
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 px-6">
-          <span className="font-[family-name:var(--font-display)] text-lg font-medium text-gray-900">
-            <span className="text-[#a48252] mr-1.5" aria-hidden>✦</span>
-            3 Star CMS
-          </span>
+          <Link href="/admin" className="flex h-9 max-w-[170px] items-center">
+            <Logo src={logoUrl} variant="black" className="h-full w-auto max-w-full object-contain" priority />
+          </Link>
           <button
             type="button"
             onClick={() => setOpen(false)}

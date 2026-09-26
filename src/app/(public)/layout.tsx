@@ -10,6 +10,12 @@ export default async function PublicLayout({ children }: { children: React.React
   const db = getDataService();
   const settings = await db.settings.get();
 
+  let logoUrl: string | null = null;
+  if (settings.logo_media_asset_id) {
+    const logoAsset = await db.media.getById(settings.logo_media_asset_id);
+    logoUrl = logoAsset?.secure_url ?? null;
+  }
+
   return (
     <SmoothScrollProvider>
       {settings.ga4_measurement_id && (
@@ -17,10 +23,10 @@ export default async function PublicLayout({ children }: { children: React.React
           <GoogleAnalytics measurementId={settings.ga4_measurement_id} />
         </Suspense>
       )}
-      <Preloader />
-      <SiteHeader />
+      <Preloader logoUrl={logoUrl} />
+      <SiteHeader logoUrl={logoUrl} />
       <main id="main">{children}</main>
-      <SiteFooter settings={settings} />
+      <SiteFooter settings={settings} logoUrl={logoUrl} />
     </SmoothScrollProvider>
   );
 }

@@ -7,15 +7,18 @@ type Props = {
   priority?: boolean;
   /** 'black' | 'white' to pick between the dark mark and light mark. Defaults to 'black'. */
   variant?: "black" | "white";
+  /** Dynamic image URL from admin settings (overrides variant) */
+  src?: string | null;
 };
 
 /**
  * The 3 Star Decoration brand mark.
- * Uses built-in PNGs: /brand/logo-black.png (dark contexts) and
+ * Uses custom uploaded logo if `src` is provided, otherwise falls back to
+ * built-in PNGs: /brand/logo-black.png (dark contexts) and
  * /brand/logo-white.png (light-on-dark contexts).
  */
-export function Logo({ className, style, priority, variant = "black" }: Props) {
-  const src = variant === "white" ? "/brand/logo-white.png" : "/brand/logo-black.png";
+export function Logo({ className, style, priority, variant = "black", src: customSrc }: Props) {
+  const src = customSrc || (variant === "white" ? "/brand/logo-white.png" : "/brand/logo-black.png");
 
   return (
     <Image

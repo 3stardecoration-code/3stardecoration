@@ -3,14 +3,16 @@
 import { useState, useTransition } from "react";
 import { updateSettings } from "@/app/actions/admin/settings";
 import { ChangePasswordForm } from "@/components/admin/settings/ChangePasswordForm";
-import type { SiteSettings } from "@/lib/domain";
+import { MediaPicker } from "@/components/admin/MediaPicker";
+import type { MediaAsset, SiteSettings } from "@/lib/domain";
 
-export function SettingsForm({ settings }: { settings: SiteSettings }) {
+export function SettingsForm({ settings, assets = [] }: { settings: SiteSettings; assets?: MediaAsset[] }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
   const [siteName, setSiteName] = useState(settings.site_name ?? "");
+  const [logoMediaAssetId, setLogoMediaAssetId] = useState<string | null>(settings.logo_media_asset_id ?? null);
   const [businessPhone, setBusinessPhone] = useState(settings.business_phone ?? "");
   const [ownerAltPhone, setOwnerAltPhone] = useState(settings.owner_alt_phone ?? "");
 
@@ -34,7 +36,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
         site_name: siteName,
         business_phone: businessPhone,
         owner_alt_phone: ownerAltPhone || null,
-        logo_media_asset_id: null,
+        logo_media_asset_id: logoMediaAssetId,
         whatsapp_number: whatsappNumber,
         whatsapp_message_template: whatsappTemplate,
         business_email: businessEmail,
@@ -59,6 +61,12 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
             <span className="text-sm font-medium text-gray-700">Site name</span>
             <input value={siteName} onChange={(e) => setSiteName(e.target.value)} className="input mt-1.5" />
           </label>
+          <MediaPicker
+            assets={assets}
+            selectedId={logoMediaAssetId}
+            onSelect={setLogoMediaAssetId}
+            label="Site Logo (replaces default brand mark sitewide)"
+          />
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
               <span className="text-sm font-medium text-gray-700">Business phone</span>

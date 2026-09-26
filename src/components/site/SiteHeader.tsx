@@ -13,7 +13,7 @@ const NAV = [
   { href: "/contact", label: "Contact" },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ logoUrl }: { logoUrl?: string | null }) {
   const pathname = usePathname();
   // Pages with a dark/espresso hero background behind the header before scrolling:
   // - /services and all subpages (/services/*)
@@ -65,19 +65,29 @@ export function SiteHeader() {
           style={{ transitionTimingFunction: "var(--ease-lux)" }}
           aria-label="3 Star Decoration — home"
         >
-          {/* Both logos occupy the same absolute position — only opacity changes */}
-          <Logo
-            variant="black"
-            priority
-            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-700"
-            style={{ opacity: showWhiteLogo ? 0 : 1, transitionTimingFunction: "var(--ease-lux)" }}
-          />
-          <Logo
-            variant="white"
-            priority
-            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-700"
-            style={{ opacity: showWhiteLogo ? 1 : 0, transitionTimingFunction: "var(--ease-lux)" }}
-          />
+          {logoUrl ? (
+            <Logo
+              src={logoUrl}
+              priority
+              className="absolute inset-0 h-full w-full object-contain"
+            />
+          ) : (
+            <>
+              {/* Both logos occupy the same absolute position — only opacity changes */}
+              <Logo
+                variant="black"
+                priority
+                className="absolute inset-0 h-full w-full object-contain transition-opacity duration-700"
+                style={{ opacity: showWhiteLogo ? 0 : 1, transitionTimingFunction: "var(--ease-lux)" }}
+              />
+              <Logo
+                variant="white"
+                priority
+                className="absolute inset-0 h-full w-full object-contain transition-opacity duration-700"
+                style={{ opacity: showWhiteLogo ? 1 : 0, transitionTimingFunction: "var(--ease-lux)" }}
+              />
+            </>
+          )}
         </Link>
 
         <nav className={`hidden items-center gap-9 lg:flex ${ink}`}>

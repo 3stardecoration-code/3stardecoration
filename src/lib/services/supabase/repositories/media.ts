@@ -65,7 +65,7 @@ async function computeUsageCounts(
     supabase.from("services").select("media_asset_id, og_media_asset_id"),
     supabase.from("testimonials").select("media_asset_id"),
     supabase.from("categories").select("cover_media_asset_id"),
-    supabase.from("site_settings").select("default_og_media_asset_id").eq("id", 1).maybeSingle(),
+    supabase.from("site_settings").select("default_og_media_asset_id, logo_media_asset_id").eq("id", 1).maybeSingle(),
     supabase.from("seo_meta").select("og_media_asset_id"),
   ]);
 
@@ -82,7 +82,10 @@ async function computeUsageCounts(
   }
   for (const row of testimonials.data ?? []) bump(row.media_asset_id);
   for (const row of categories.data ?? []) bump(row.cover_media_asset_id);
-  if (siteSettings.data) bump(siteSettings.data.default_og_media_asset_id);
+  if (siteSettings.data) {
+    bump(siteSettings.data.default_og_media_asset_id);
+    bump(siteSettings.data.logo_media_asset_id);
+  }
   for (const row of seoMeta.data ?? []) bump(row.og_media_asset_id);
 
   return counts;

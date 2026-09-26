@@ -51,7 +51,8 @@ function computeUsageCount(mediaId: string): number {
   ).length;
   count += fx.testimonials.filter((t) => t.media_asset_id === mediaId).length;
   count += fx.categories.filter((c) => c.cover_media_asset_id === mediaId).length;
-  if (fx.siteSettings.default_og_media_asset_id === mediaId) count += 1;
+  if (siteSettings.default_og_media_asset_id === mediaId) count += 1;
+  if (siteSettings.logo_media_asset_id === mediaId) count += 1;
   count += fx.seoMeta.filter((s) => s.og_media_asset_id === mediaId).length;
   return count;
 }
