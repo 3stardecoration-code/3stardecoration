@@ -2,7 +2,7 @@
 
 Current top-level layout of the repo (Phase 0). This will grow as later phases
 add public pages, admin UI, and the Supabase schema; keep this doc in sync as
-that happens.
+that happens. And this is for git push
 
 ```
 3stardecoration/
