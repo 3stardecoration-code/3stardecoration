@@ -34,6 +34,7 @@ export default async function HomePage() {
   const catById = new Map(categories.map((c) => [c.id, c]));
   const sectionByKey = new Map(sections.map((s) => [s.section_key, s]));
   const heroConfig = sectionByKey.get("hero")?.config ?? {};
+  const craftingConfig = sectionByKey.get("crafting_moments")?.config ?? {};
   const beforeAfterConfig = sectionByKey.get("before_after")?.config ?? {};
   const testimonialsConfig = sectionByKey.get("testimonials")?.config ?? {};
   const instagramConfig = sectionByKey.get("instagram")?.config ?? {};
@@ -69,12 +70,27 @@ export default async function HomePage() {
   const testimonialsBg = testimonialsBgId ? media[testimonialsBgId] : undefined;
 
   const enabled = new Set(sections.map((s) => s.section_key));
+  const showCrafting = !sectionByKey.has("crafting_moments") || enabled.has("crafting_moments");
   const igUrl = settings.social_links?.instagram || undefined;
 
   return (
     <>
-      {enabled.has("hero") && <Hero image={heroImage} />}
-      <CraftingMoments />
+      {enabled.has("hero") && (
+        <Hero
+          image={heroImage}
+          eyebrow={(heroConfig.eyebrow as string) || undefined}
+          title={(heroConfig.title as string) || undefined}
+          titleHighlight={(heroConfig.title_highlight as string) || undefined}
+          subtitle={(heroConfig.subtitle as string) || undefined}
+        />
+      )}
+      {showCrafting && (
+        <CraftingMoments
+          eyebrow={(craftingConfig.eyebrow as string) || undefined}
+          title={(craftingConfig.title as string) || undefined}
+          titleHighlight={(craftingConfig.title_highlight as string) || undefined}
+        />
+      )}
       <SignatureStatement />
       {enabled.has("featured_works") && <FeaturedWorks items={featuredResolved} />}
       {enabled.has("featured_services") && <ServicesPreview services={services} media={media} />}

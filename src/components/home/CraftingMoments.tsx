@@ -23,21 +23,33 @@ function Sparkle({ className }: { className?: string }) {
   );
 }
 
+type Props = {
+  eyebrow?: string;
+  title?: string;
+  titleHighlight?: string;
+};
+
 /**
  * Value-proposition strip beneath the hero: an eyebrow + italic headline
  * ("Creating Memories"), a sparkle ornament, then four arched columns using
  * the client-supplied hand-drawn icon artwork (each already carries its own
  * blush watercolor backdrop).
  */
-export function CraftingMoments() {
+export function CraftingMoments({
+  eyebrow = "Since 1989",
+  title = "Decorating celebrations,",
+  titleHighlight = "Creating memories.",
+}: Props = {}) {
   return (
     <section className="relative overflow-hidden bg-ivory py-14 sm:py-24 lg:py-28">
       <Container className="relative">
         <Reveal className="text-center">
           {/* ← Adjust sizes here: clamp(min, preferred, max) */}
-          <p className="eyebrow" style={{ fontSize: "clamp(0.90rem, 1.5vw, 1.5rem)" }}>Since 1989</p>
+          <p className="eyebrow" style={{ fontSize: "clamp(0.90rem, 1.5vw, 1.5rem)" }}>
+            {eyebrow}
+          </p>
           <h2 className="display mt-3 text-3xl sm:mt-4 sm:text-5xl">
-            Decorating celebrations, <em className="text-accent-deep">Creating memories.</em>
+            {title} {titleHighlight && <em className="text-accent-deep">{titleHighlight}</em>}
           </h2>
           <div className="mx-auto mt-4 flex items-center justify-center gap-3 sm:mt-6">
             <span className="h-px w-10 bg-line sm:w-16" />

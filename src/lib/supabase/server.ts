@@ -3,16 +3,22 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 
-const PLACEHOLDER = "not-configured";
+const PLACEHOLDER_TOKENS = ["not-configured", "placeholder", "changeme", "ci", "example"];
+
+function isPlaceholder(value: string | undefined): boolean {
+  if (!value) return true;
+  const lower = value.toLowerCase();
+  return PLACEHOLDER_TOKENS.some((token) => lower.includes(token));
+}
 
 /** True once the client has real Supabase credentials — the switch used everywhere to pick mock vs. real. */
 export function hasSupabaseEnv(): boolean {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  return Boolean(
-    url && anonKey && serviceKey && url !== PLACEHOLDER && anonKey !== PLACEHOLDER && serviceKey !== PLACEHOLDER && !url.includes(PLACEHOLDER),
-  );
+  if (!url || !anonKey || !serviceKey) return false;
+  if (isPlaceholder(url) || isPlaceholder(anonKey) || isPlaceholder(serviceKey)) return false;
+  return true;
 }
 
 /**

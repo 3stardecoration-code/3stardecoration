@@ -34,8 +34,8 @@ insert into homepage_sections (section_key, is_enabled, sort_order, is_featured,
   ('instagram', true, 6, false, '{}'),
   ('quote_cta', true, 7, false, '{}');
 
-insert into site_settings (id, site_name, whatsapp_message_template, social_links, default_meta_title, default_meta_description) values
-  (1, '3 Star Decoration', 'Hi 3 Star Decoration, I''d like a quote. {details}', '{"instagram": "", "facebook": "", "youtube": ""}', '3 Star Decoration — Premium Event Decoration', 'Weddings, receptions, and celebrations, beautifully designed.');
+insert into site_settings (id, site_name, canonical_base_url, whatsapp_message_template, social_links, default_meta_title, default_meta_description) values
+  (1, '3 Star Decoration', 'https://www.3stardecoration.in', 'Hi 3 Star Decoration, I''d like a quote. {details}', '{"instagram": "", "facebook": "", "youtube": ""}', '3 Star Decoration — Premium Event Decoration', 'Weddings, receptions, and celebrations, beautifully designed.');
 
 insert into seo_meta (route_key, meta_title, meta_description) values
   ('home', '3 Star Decoration — Premium Event Decoration', 'Weddings, receptions, and celebrations, beautifully designed.'),

@@ -11,6 +11,10 @@ type HeroImage = Pick<MediaAsset, "secure_url" | "alt_text" | "width" | "height"
 type Props = {
   /** Admin-selected photo from Homepage → Hero; falls back to the built-in placeholder when unset. */
   image?: HeroImage;
+  eyebrow?: string;
+  title?: string;
+  titleHighlight?: string;
+  subtitle?: string;
 };
 
 /**
@@ -21,7 +25,13 @@ type Props = {
  * - Desktop: editorial split with left-aligned copy in the site container and a
  *   full-bleed right photograph panel extending to the viewport edge.
  */
-export function Hero({ image }: Props) {
+export function Hero({
+  image,
+  eyebrow = "3 Star Decoration",
+  title = "Three decades of dedication.",
+  titleHighlight = "A legacy of celebration.",
+  subtitle = "Weddings · Receptions · Every Occasion",
+}: Props) {
   return (
     <section className="relative w-full overflow-hidden bg-ivory">
       {/* Background photo panel:
@@ -82,14 +92,13 @@ export function Hero({ image }: Props) {
         <div className="max-w-[65%] sm:max-w-[60%] lg:max-w-lg">
           <Reveal>
             <p className="text-[0.62rem] font-medium uppercase tracking-[0.24em] text-accent-deep sm:text-[0.72rem] sm:tracking-[0.28em]">
-              3 Star Decoration
+              {eyebrow}
             </p>
           </Reveal>
 
           <Reveal delay={0.1} y={20}>
             <h1 className="display mt-4 text-[clamp(1.85rem,6.8vw,2.35rem)] leading-[1.08] tracking-[-0.015em] text-charcoal sm:mt-6 sm:text-5xl sm:leading-[1.1] lg:text-[3.4rem] lg:leading-[1.02]">
-              Three decades of dedication.{" "}
-              <em className="text-accent-deep">A legacy of celebration.</em>
+              {title} {titleHighlight && <em className="text-accent-deep">{titleHighlight}</em>}
             </h1>
           </Reveal>
 
@@ -112,11 +121,13 @@ export function Hero({ image }: Props) {
             </div>
           </Reveal>
 
-          <Reveal delay={0.26} y={16}>
-            <p className="mt-3 text-[0.65rem] font-medium uppercase tracking-[0.18em] text-stone sm:mt-5 sm:text-[0.8rem] sm:tracking-[0.24em]">
-              Weddings · Receptions · Every Occasion
-            </p>
-          </Reveal>
+          {subtitle && (
+            <Reveal delay={0.26} y={16}>
+              <p className="mt-3 text-[0.65rem] font-medium uppercase tracking-[0.18em] text-stone sm:mt-5 sm:text-[0.8rem] sm:tracking-[0.24em]">
+                {subtitle}
+              </p>
+            </Reveal>
+          )}
 
           <Reveal delay={0.36} y={16}>
             <Link href="/portfolio" className="group mt-6 inline-flex items-center sm:mt-10">

@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getDataService } from "@/lib/services";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.3stardecoration.in";
   const db = getDataService();
   const [projectSlugs, services] = await Promise.all([
     db.projects.listPublishedSlugs(),

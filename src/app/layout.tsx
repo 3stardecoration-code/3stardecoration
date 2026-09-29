@@ -11,6 +11,7 @@ const fraunces = Fraunces({
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.3stardecoration.in"),
   title: {
     default: "3 Star Decoration — Premium Event Decoration",
     template: "%s | 3 Star Decoration",

@@ -23,7 +23,28 @@ export const homepageRepository: HomepageRepository = {
       .select("*")
       .order("sort_order", { ascending: true });
     if (error) throw error;
-    return (data ?? []) as HomepageSection[];
+    const sections = (data ?? []) as HomepageSection[];
+    if (sections.length > 0 && !sections.some((s) => s.section_key === "crafting_moments")) {
+      const { data: inserted, error: insertError } = await supabase
+        .from("homepage_sections")
+        .insert({
+          section_key: "crafting_moments",
+          is_enabled: true,
+          sort_order: 2,
+          is_featured: false,
+          config: {
+            eyebrow: "Since 1989",
+            title: "Decorating celebrations,",
+            title_highlight: "Creating memories.",
+          },
+        })
+        .select("*")
+        .single();
+      if (!insertError && inserted) {
+        sections.splice(1, 0, inserted as HomepageSection);
+      }
+    }
+    return sections;
   },
 
   async updateSection(id: string, patch: HomepageSectionPatch): Promise<HomepageSection> {
