@@ -13,7 +13,13 @@ export function MediaTrashCard({ asset }: { asset: MediaAsset }) {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
       <div className="relative aspect-[4/3] bg-gray-100">
-        <Image src={asset.secure_url} alt={asset.alt_text ?? ""} fill className="object-cover opacity-60" />
+        <Image
+          src={asset.secure_url}
+          alt={asset.alt_text ?? ""}
+          fill
+          unoptimized={asset.secure_url?.startsWith("/")}
+          className="object-cover opacity-60"
+        />
       </div>
       <div className="p-3">
         <p className="truncate text-xs text-gray-500">{asset.alt_text}</p>

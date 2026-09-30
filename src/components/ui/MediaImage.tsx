@@ -53,6 +53,7 @@ export function MediaImage({ asset, sizes, className, imgClassName, priority, fi
           : { width: asset.width ?? 1600, height: asset.height ?? 1067 })}
         sizes={sizes}
         priority={priority}
+        unoptimized={asset.secure_url?.startsWith("/")}
         onLoad={() => setLoaded(true)}
         className={imgClassName}
         style={imgStyle}

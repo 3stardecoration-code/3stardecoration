@@ -95,7 +95,13 @@ export function MediaMultiPicker({ assets, selectedIds, onChange, label = "Photo
                   : "border-gray-200"
             }`}
           >
-            <Image src={asset.secure_url} alt={asset.alt_text ?? ""} fill className="pointer-events-none object-cover" />
+            <Image
+              src={asset.secure_url}
+              alt={asset.alt_text ?? ""}
+              fill
+              unoptimized={asset.secure_url?.startsWith("/")}
+              className="pointer-events-none object-cover"
+            />
             <span className="absolute left-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-[10px] font-semibold text-white">
               {index + 1}
             </span>
@@ -133,7 +139,13 @@ export function MediaMultiPicker({ assets, selectedIds, onChange, label = "Photo
                       isSelected ? "ring-gray-900" : "ring-transparent hover:ring-gray-300"
                     }`}
                   >
-                    <Image src={asset.secure_url} alt={asset.alt_text ?? ""} fill className="object-cover" />
+                    <Image
+                      src={asset.secure_url}
+                      alt={asset.alt_text ?? ""}
+                      fill
+                      unoptimized={asset.secure_url?.startsWith("/")}
+                      className="object-cover"
+                    />
                     {isSelected && (
                       <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-lg font-semibold text-white">
                         ✓

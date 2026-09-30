@@ -4,7 +4,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { MediaImage } from "@/components/ui/MediaImage";
 import type { MediaAsset } from "@/lib/domain";
 
-const DEFAULT_IMAGE_SRC = "/demo-assets/stage-01.jpg";
+const DEFAULT_IMAGE_SRC = "https://res.cloudinary.com/wrunzhab/image/upload/v1786528274/3star-decoration/ypy2tg7h3aufuzdhynrq.jpg";
 
 type HeroImage = Pick<MediaAsset, "secure_url" | "alt_text" | "width" | "height" | "dominant_color">;
 
@@ -60,6 +60,7 @@ export function Hero({
               alt=""
               fill
               priority
+              unoptimized={DEFAULT_IMAGE_SRC.startsWith("/")}
               sizes="(max-width: 1024px) 100vw, 52vw"
               className="object-cover object-[30%_center] lg:object-center"
             />

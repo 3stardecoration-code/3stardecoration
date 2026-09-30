@@ -16,8 +16,12 @@ export async function proxy(request: NextRequest) {
   // imported) to keep this edge bundle free of unrelated server-only deps.
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const isPlaceholder = (val: string) =>
-    ["not-configured", "placeholder", "changeme", "ci", "example"].some((t) => val.toLowerCase().includes(t));
+  const EXACT_PLACEHOLDERS = new Set(["ci", "test", "demo", "placeholder", "changeme", "not-configured", "example", "none", "null", "undefined"]);
+  const SUBSTRING_PLACEHOLDERS = ["not-configured", "placeholder", "changeme", "example.com", "your-project", "<from", "<insert", "your-key"];
+  const isPlaceholder = (val: string) => {
+    const lower = val.toLowerCase().trim();
+    return EXACT_PLACEHOLDERS.has(lower) || SUBSTRING_PLACEHOLDERS.some((token) => lower.includes(token));
+  };
   if (!supabaseUrl || !anonKey || isPlaceholder(supabaseUrl) || isPlaceholder(anonKey)) {
     return NextResponse.next();
   }

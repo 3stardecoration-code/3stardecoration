@@ -27,6 +27,7 @@ export function Logo({ className, style, priority, variant = "black", src: custo
       width={420}
       height={222}
       priority={priority}
+      unoptimized={src.startsWith("/")}
       className={className}
       style={style}
     />

@@ -14,7 +14,13 @@ export function MediaCard({ asset }: { asset: MediaAsset }) {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
       <div className="relative aspect-[4/3] bg-gray-100">
-        <Image src={asset.secure_url} alt={alt} fill className="object-cover" />
+        <Image
+          src={asset.secure_url}
+          alt={alt}
+          fill
+          unoptimized={asset.secure_url?.startsWith("/")}
+          className="object-cover"
+        />
         <button
           type="button"
           onClick={() =>

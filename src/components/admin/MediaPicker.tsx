@@ -32,7 +32,13 @@ export function MediaPicker({ assets, selectedId, onSelect, label = "Cover image
       <div className="mt-2 flex items-center gap-4">
         <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
           {selected ? (
-            <Image src={selected.secure_url} alt={selected.alt_text ?? ""} fill className="object-cover" />
+            <Image
+              src={selected.secure_url}
+              alt={selected.alt_text ?? ""}
+              fill
+              unoptimized={selected.secure_url?.startsWith("/")}
+              className="object-cover"
+            />
           ) : (
             <div className="flex h-full items-center justify-center text-xs text-gray-400">None</div>
           )}
@@ -80,7 +86,13 @@ export function MediaPicker({ assets, selectedId, onSelect, label = "Cover image
                     asset.id === selectedId ? "ring-gray-900" : "ring-transparent hover:ring-gray-300"
                   }`}
                 >
-                  <Image src={asset.secure_url} alt={asset.alt_text ?? ""} fill className="object-cover" />
+                  <Image
+                    src={asset.secure_url}
+                    alt={asset.alt_text ?? ""}
+                    fill
+                    unoptimized={asset.secure_url?.startsWith("/")}
+                    className="object-cover"
+                  />
                 </button>
               ))}
               {filtered.length === 0 && (

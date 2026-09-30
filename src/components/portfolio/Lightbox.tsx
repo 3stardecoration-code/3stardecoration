@@ -103,6 +103,7 @@ export function Lightbox({ images, index, onClose, onIndexChange }: Props) {
           src={current.secure_url}
           alt={current.alt_text ?? ""}
           fill
+          unoptimized={current.secure_url?.startsWith("/")}
           sizes="92vw"
           className="object-contain"
           priority

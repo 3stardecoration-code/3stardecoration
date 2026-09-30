@@ -3,12 +3,14 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 
-const PLACEHOLDER_TOKENS = ["not-configured", "placeholder", "changeme", "ci", "example"];
+const EXACT_PLACEHOLDERS = new Set(["ci", "test", "demo", "placeholder", "changeme", "not-configured", "example", "none", "null", "undefined"]);
+const SUBSTRING_PLACEHOLDERS = ["not-configured", "placeholder", "changeme", "example.com", "your-project", "<from", "<insert", "your-key"];
 
 function isPlaceholder(value: string | undefined): boolean {
   if (!value) return true;
-  const lower = value.toLowerCase();
-  return PLACEHOLDER_TOKENS.some((token) => lower.includes(token));
+  const lower = value.toLowerCase().trim();
+  if (EXACT_PLACEHOLDERS.has(lower)) return true;
+  return SUBSTRING_PLACEHOLDERS.some((token) => lower.includes(token));
 }
 
 /** True once the client has real Supabase credentials — the switch used everywhere to pick mock vs. real. */

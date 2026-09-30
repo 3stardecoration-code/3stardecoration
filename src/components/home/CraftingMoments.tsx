@@ -71,6 +71,7 @@ export function CraftingMoments({
                     src={feature.src}
                     alt=""
                     fill
+                    unoptimized
                     sizes="(min-width: 1024px) 11rem, (min-width: 640px) 8rem, 4.5rem"
                     className="mix-blend-multiply object-contain"
                   />

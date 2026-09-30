@@ -92,7 +92,13 @@ export function ProjectsTable({ rows: initialRows, reorderable }: { rows: Row[];
                   <div className="flex items-center gap-3">
                     <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded-md bg-gray-100">
                       {cover && (
-                        <Image src={cover.secure_url} alt="" fill className="object-cover" />
+                        <Image
+                          src={cover.secure_url}
+                          alt=""
+                          fill
+                          unoptimized={cover.secure_url?.startsWith("/")}
+                          className="object-cover"
+                        />
                       )}
                     </div>
                     <div>

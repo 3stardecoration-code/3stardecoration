@@ -7,7 +7,7 @@ import type { AboutPageContent, MediaAsset } from "@/lib/domain";
 // placeholder so the layout never looks broken before the client uploads one.
 const FALLBACK_IMAGE = {
   id: "story-image-fallback",
-  secure_url: "/demo-assets/wedding-04.jpg",
+  secure_url: "https://res.cloudinary.com/wrunzhab/image/upload/v1786528231/3star-decoration/gjdegdjeml4bsjzam32d.jpg",
   alt_text: "3 Star Decoration — crafting an elegant wedding setup",
   width: 1600,
   height: 1067,
