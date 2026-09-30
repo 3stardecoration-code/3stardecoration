@@ -56,10 +56,24 @@ export function SiteFooter({ settings, logoUrl }: { settings: SiteSettings; logo
 
           <div className="flex flex-col gap-3">
             <p className="eyebrow mb-2">Get in touch</p>
-            {settings.business_phone && (
-              <a href={`tel:${settings.business_phone}`} className="text-sm text-ivory/70 hover:text-ivory">
-                {settings.business_phone}
-              </a>
+            {(settings.business_phone || settings.owner_alt_phone) && (
+              <div className="flex flex-wrap items-center gap-x-2 text-sm text-ivory/70">
+                {settings.business_phone && (
+                  <a href={`tel:${settings.business_phone}`} className="transition-colors hover:text-ivory">
+                    {settings.business_phone}
+                  </a>
+                )}
+                {settings.business_phone && settings.owner_alt_phone && (
+                  <span className="text-ivory/40" aria-hidden>
+                    /
+                  </span>
+                )}
+                {settings.owner_alt_phone && (
+                  <a href={`tel:${settings.owner_alt_phone}`} className="transition-colors hover:text-ivory">
+                    {settings.owner_alt_phone}
+                  </a>
+                )}
+              </div>
             )}
             {settings.business_email && (
               <a href={`mailto:${settings.business_email}`} className="text-sm text-ivory/70 hover:text-ivory">
