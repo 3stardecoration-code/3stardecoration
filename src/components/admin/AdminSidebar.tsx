@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAdminNav } from "./AdminNavContext";
 import { Logo } from "@/components/site/Logo";
 
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { label: "About Page", href: "/admin/about", icon: InfoIcon },
   { label: "Enquiries", href: "/admin/enquiries", icon: InboxIcon },
   { label: "Portfolio", href: "/admin/portfolio", icon: BriefcaseIcon },
+  { label: "Categories", href: "/admin/categories", icon: TagIcon },
   { label: "Services", href: "/admin/services", icon: LayersIcon },
   { label: "Testimonials", href: "/admin/testimonials", icon: QuoteIcon },
   { label: "Media Library", href: "/admin/media", icon: ImageIcon },
@@ -21,10 +22,12 @@ const NAV_ITEMS = [
 export function AdminSidebar({ logoUrl }: { logoUrl?: string | null }) {
   const pathname = usePathname();
   const { open, setOpen } = useAdminNav();
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
-  // Close the mobile drawer automatically whenever the route changes.
+  // Close the mobile drawer and clear pending status whenever the route changes.
   useEffect(() => {
     setOpen(false);
+    setPendingHref(null);
   }, [pathname, setOpen]);
 
   return (
@@ -45,7 +48,7 @@ export function AdminSidebar({ logoUrl }: { logoUrl?: string | null }) {
       >
         {/* Logo Area */}
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 px-6">
-          <Link href="/admin" className="flex h-9 max-w-[170px] items-center">
+          <Link href="/admin" prefetch={true} className="flex h-9 max-w-[170px] items-center">
             <Logo src={logoUrl} variant="black" className="h-full w-auto max-w-full object-contain" priority />
           </Link>
           <button
@@ -66,19 +69,29 @@ export function AdminSidebar({ logoUrl }: { logoUrl?: string | null }) {
               item.href === "/admin"
                 ? pathname === "/admin"
                 : pathname.startsWith(item.href);
+            const isPendingThis = pendingHref === item.href && !isActive;
 
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  prefetch={true}
+                  onClick={() => setPendingHref(item.href)}
+                  className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
                     isActive
+                      ? "bg-gray-900 text-white shadow-xs"
+                      : isPendingThis
                       ? "bg-gray-100 text-gray-900"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      : "text-gray-600 hover:bg-gray-100/70 hover:text-gray-900"
                   }`}
                 >
-                  <item.icon className={`h-5 w-5 ${isActive ? "text-gray-900" : "text-gray-400"}`} />
-                  {item.label}
+                  <div className="flex items-center gap-3">
+                    <item.icon className={`h-5 w-5 ${isActive ? "text-white" : isPendingThis ? "text-gray-900" : "text-gray-400"}`} />
+                    {item.label}
+                  </div>
+                  {isPendingThis && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-600 animate-pulse" />
+                  )}
                 </Link>
               </li>
             );
@@ -176,6 +189,15 @@ function InfoIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+    </svg>
+  );
+}
+
+function TagIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
     </svg>
   );
 }

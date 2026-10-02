@@ -91,9 +91,27 @@ export interface ProjectRepository {
   setGallery(projectId: string, mediaAssetIds: string[]): Promise<ProjectMedia[]>;
 }
 
+export interface CategoryPatch {
+  name?: string;
+  slug?: string;
+  description?: string | null;
+  sort_order?: number;
+  cover_media_asset_id?: string | null;
+}
+
 export interface CategoryRepository {
   list(): Promise<Category[]>;
+  getById(id: string): Promise<Category | null>;
   getBySlug(slug: string): Promise<Category | null>;
+  create(input: {
+    name: string;
+    slug?: string;
+    description?: string | null;
+    cover_media_asset_id?: string | null;
+  }): Promise<Category>;
+  update(id: string, patch: CategoryPatch): Promise<Category>;
+  delete(id: string): Promise<void>;
+  reorder(order: SortOrderEntry[]): Promise<void>;
 }
 
 export interface GalleryWithItems {
@@ -109,6 +127,7 @@ export interface GalleryRepository {
 export interface ServicePatch {
   title?: string;
   slug?: string;
+  category_id?: string | null;
   short_description?: string | null;
   description?: string | null;
   icon?: string | null;
@@ -126,7 +145,7 @@ export interface ServiceRepository {
   listForAdmin(): Promise<Service[]>;
   listTrash(): Promise<Service[]>;
   getById(id: string): Promise<Service | null>;
-  create(input: { title: string }): Promise<Service>;
+  create(input: { title: string; category_id?: string | null }): Promise<Service>;
   update(id: string, patch: ServicePatch): Promise<Service>;
   softDelete(id: string): Promise<void>;
   restore(id: string): Promise<void>;

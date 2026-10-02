@@ -1,28 +1,37 @@
 import "server-only";
+import { cache } from "react";
 import type { SettingsRepository } from "@/lib/repositories";
 import type { SeoMeta, SiteSettings } from "@/lib/domain";
 import { createSupabaseAnonClient, createSupabaseServiceClient } from "@/lib/supabase/server";
 
+const getCached = cache(async (): Promise<SiteSettings> => {
+  const supabase = createSupabaseAnonClient();
+  const { data, error } = await supabase.from("site_settings").select("*").eq("id", 1).maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Site settings not found");
+  const { id: _id, ...settings } = data as SiteSettings & { id: number };
+  void _id;
+  return settings;
+});
+
+const getSeoCached = cache(async (routeKey: string): Promise<SeoMeta | null> => {
+  const supabase = createSupabaseAnonClient();
+  const { data, error } = await supabase
+    .from("seo_meta")
+    .select("*")
+    .eq("route_key", routeKey)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as SeoMeta | null) ?? null;
+});
+
 export const settingsRepository: SettingsRepository = {
   async get(): Promise<SiteSettings> {
-    const supabase = createSupabaseAnonClient();
-    const { data, error } = await supabase.from("site_settings").select("*").eq("id", 1).maybeSingle();
-    if (error) throw error;
-    if (!data) throw new Error("Site settings not found");
-    const { id: _id, ...settings } = data as SiteSettings & { id: number };
-    void _id;
-    return settings;
+    return getCached();
   },
 
   async getSeoForRoute(routeKey: string): Promise<SeoMeta | null> {
-    const supabase = createSupabaseAnonClient();
-    const { data, error } = await supabase
-      .from("seo_meta")
-      .select("*")
-      .eq("route_key", routeKey)
-      .maybeSingle();
-    if (error) throw error;
-    return (data as SeoMeta | null) ?? null;
+    return getSeoCached(routeKey);
   },
 
   async update(patch: Partial<SiteSettings>): Promise<SiteSettings> {

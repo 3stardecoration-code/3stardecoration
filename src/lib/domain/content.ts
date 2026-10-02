@@ -18,6 +18,7 @@ export interface Service {
   id: string;
   title: string;
   slug: string;
+  category_id: string | null;
   short_description: string | null;
   description: string | null;
   icon: string | null;

@@ -1,10 +1,11 @@
 import "server-only";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import type { AuthService, SignInResult } from "@/lib/repositories";
 import type { AdminSession } from "@/lib/domain";
 import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/supabase/server";
 
-async function loadProfile(userId: string, email: string): Promise<AdminSession | null> {
+const loadProfile = cache(async (userId: string, email: string): Promise<AdminSession | null> => {
   const service = createSupabaseServiceClient();
   const { data } = await service
     .from("admin_profiles")
@@ -22,16 +23,16 @@ async function loadProfile(userId: string, email: string): Promise<AdminSession 
       role: data.role,
     },
   };
-}
+});
 
-async function getSession(): Promise<AdminSession | null> {
+const getSession = cache(async (): Promise<AdminSession | null> => {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user || !user.email) return null;
   return loadProfile(user.id, user.email);
-}
+});
 
 export const supabaseAuthService: AuthService = {
   getSession,

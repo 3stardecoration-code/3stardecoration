@@ -15,7 +15,8 @@ export async function createService(formData: FormData): Promise<void> {
   await getAuthService().requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
   if (!title) throw new Error("Title is required.");
-  const service = await getDataService().services.create({ title });
+  const categoryId = String(formData.get("category_id") ?? "").trim() || null;
+  const service = await getDataService().services.create({ title, category_id: categoryId });
   revalidatePath("/admin/services");
   redirect(`/admin/services/${service.id}`);
 }

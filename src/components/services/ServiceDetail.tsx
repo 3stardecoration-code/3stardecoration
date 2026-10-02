@@ -9,9 +9,10 @@ type Props = {
   service: Service;
   coverAsset?: MediaAsset;
   settings: SiteSettings;
+  categoryName?: string | null;
 };
 
-export function ServiceDetail({ service, coverAsset, settings }: Props) {
+export function ServiceDetail({ service, coverAsset, settings, categoryName }: Props) {
   const wa = whatsappUrl(
     settings.whatsapp_number,
     `Hi 3 Star Decoration, I'm interested in your ${service.title} service. Could you share details and pricing?`,
@@ -42,7 +43,9 @@ export function ServiceDetail({ service, coverAsset, settings }: Props) {
             >
               <span aria-hidden>←</span> All services
             </Link>
-            <p className="eyebrow text-accent">Our services</p>
+            <p className="eyebrow text-accent">
+              {categoryName ? `${categoryName} · Service` : "Our services"}
+            </p>
             <h1 className="display mt-4 text-5xl sm:text-6xl lg:text-7xl">{service.title}</h1>
             {service.short_description && (
               <p className="mt-6 max-w-xl text-lg text-ivory/75">{service.short_description}</p>

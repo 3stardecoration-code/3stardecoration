@@ -7,8 +7,12 @@ export const dynamic = "force-dynamic";
 export default async function EditServicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const db = getDataService();
-  const [service, mediaAssets] = await Promise.all([db.services.getById(id), db.media.listForAdmin()]);
+  const [service, mediaAssets, categories] = await Promise.all([
+    db.services.getById(id),
+    db.media.listForAdmin(),
+    db.categories.list(),
+  ]);
   if (!service) notFound();
 
-  return <ServiceForm service={service} mediaAssets={mediaAssets} />;
+  return <ServiceForm service={service} mediaAssets={mediaAssets} categories={categories} />;
 }

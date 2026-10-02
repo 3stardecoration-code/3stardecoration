@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { updateProject, trashProject, setProjectGallery } from "@/app/actions/admin/projects";
 import { MediaPicker } from "@/components/admin/MediaPicker";
 import { MediaMultiPicker } from "@/components/admin/MediaMultiPicker";
+import { CategorySelectField } from "@/components/admin/CategorySelectField";
 import type { Category, MediaAsset, Project, ProjectMedia, ProjectStatus, WorkflowStatus } from "@/lib/domain";
 
 const WORKFLOW_OPTIONS: WorkflowStatus[] = ["draft", "published", "unpublished"];
@@ -112,15 +113,14 @@ export function ProjectForm({
             </Field>
           </div>
 
-          <Field label="Category">
-            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="input">
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </Field>
+          <CategorySelectField
+            categories={categories}
+            selectedId={categoryId}
+            onChange={(id) => id && setCategoryId(id)}
+            allowNone={false}
+            required={true}
+            label="Category"
+          />
 
           <Field label="Summary">
             <textarea

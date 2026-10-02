@@ -5,11 +5,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { updateService, trashService } from "@/app/actions/admin/services";
 import { MediaPicker } from "@/components/admin/MediaPicker";
-import type { MediaAsset, Service, WorkflowStatus } from "@/lib/domain";
+import { CategorySelectField } from "@/components/admin/CategorySelectField";
+import type { Category, MediaAsset, Service, WorkflowStatus } from "@/lib/domain";
 
 const WORKFLOW_OPTIONS: WorkflowStatus[] = ["draft", "published", "unpublished"];
 
-export function ServiceForm({ service, mediaAssets }: { service: Service; mediaAssets: MediaAsset[] }) {
+export function ServiceForm({
+  service,
+  mediaAssets,
+  categories = [],
+}: {
+  service: Service;
+  mediaAssets: MediaAsset[];
+  categories?: Category[];
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -17,6 +26,7 @@ export function ServiceForm({ service, mediaAssets }: { service: Service; mediaA
 
   const [title, setTitle] = useState(service.title);
   const [slug, setSlug] = useState(service.slug);
+  const [categoryId, setCategoryId] = useState<string | null>(service.category_id ?? null);
   const [shortDescription, setShortDescription] = useState(service.short_description ?? "");
   const [description, setDescription] = useState(service.description ?? "");
   const [workflowStatus, setWorkflowStatus] = useState<WorkflowStatus>(service.workflow_status);
@@ -31,6 +41,7 @@ export function ServiceForm({ service, mediaAssets }: { service: Service; mediaA
       const res = await updateService(service.id, {
         title,
         slug,
+        category_id: categoryId,
         short_description: shortDescription || null,
         description: description || null,
         workflow_status: workflowStatus,
@@ -110,6 +121,17 @@ export function ServiceForm({ service, mediaAssets }: { service: Service; mediaA
         </div>
 
         <div className="space-y-6">
+          <div className="rounded-xl border border-gray-200 p-5">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400 mb-3">Category</p>
+            <CategorySelectField
+              categories={categories}
+              selectedId={categoryId}
+              onChange={setCategoryId}
+              allowNone={true}
+              label="Assigned Category"
+            />
+          </div>
+
           <div className="rounded-xl border border-gray-200 p-5">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Publishing</p>
             <label className="mt-3 block">

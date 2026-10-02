@@ -43,9 +43,10 @@ const FallbackIcon = () => (
 type Props = {
   services: Service[];
   coverMedia: Record<string, MediaAsset>;
+  categoryNames?: Record<string, string>;
 };
 
-export function ServicesGrid({ services, coverMedia }: Props) {
+export function ServicesGrid({ services, coverMedia, categoryNames = {} }: Props) {
   return (
     <section className="py-section">
       <Container>
@@ -64,6 +65,7 @@ export function ServicesGrid({ services, coverMedia }: Props) {
           {services.map((service, i) => {
             const icon = SERVICE_ICONS[service.slug] ?? <FallbackIcon />;
             const cover = service.media_asset_id ? coverMedia[service.media_asset_id] : undefined;
+            const categoryName = service.category_id ? categoryNames[service.category_id] : undefined;
 
             return (
               <Reveal key={service.id} delay={(i % 3) * 0.06}>
@@ -82,6 +84,13 @@ export function ServicesGrid({ services, coverMedia }: Props) {
                       />
                       <div className="absolute inset-0 z-10 bg-gradient-to-t from-espresso/90 via-espresso/40 to-transparent" />
                     </>
+                  )}
+
+                  {/* Category pill */}
+                  {categoryName && (
+                    <span className="absolute right-8 top-8 z-20 text-[0.68rem] tracking-wider font-medium uppercase px-2.5 py-0.5 rounded-full border border-stone/20 text-stone group-hover:border-ivory/20 group-hover:text-ivory/80 transition-colors">
+                      {categoryName}
+                    </span>
                   )}
 
                   {/* Accent rule — grows on hover */}

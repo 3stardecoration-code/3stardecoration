@@ -5,7 +5,10 @@ import { ServicesTable } from "@/components/admin/services/ServicesTable";
 export const dynamic = "force-dynamic";
 
 export default async function AdminServicesPage() {
-  const services = await getDataService().services.listForAdmin();
+  const [services, categories] = await Promise.all([
+    getDataService().services.listForAdmin(),
+    getDataService().categories.list(),
+  ]);
 
   return (
     <div>
@@ -31,7 +34,7 @@ export default async function AdminServicesPage() {
         {services.length === 0 ? (
           <p className="py-16 text-center text-sm text-gray-500">No services yet.</p>
         ) : (
-          <ServicesTable services={services} />
+          <ServicesTable services={services} categories={categories} />
         )}
       </div>
     </div>

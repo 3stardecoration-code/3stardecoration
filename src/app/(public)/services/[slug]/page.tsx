@@ -57,6 +57,8 @@ export default async function ServiceDetailPage({ params }: { params: Params }) 
   ]);
   if (!service) notFound();
 
+  const category = service.category_id ? await db.categories.getById(service.category_id).catch(() => null) : null;
+
   // Resolve cover image
   const coverId = service.media_asset_id;
   const coverAsset = coverId ? (await db.media.getById(coverId)) ?? undefined : undefined;
@@ -84,7 +86,12 @@ export default async function ServiceDetailPage({ params }: { params: Params }) 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
       />
-      <ServiceDetail service={service} coverAsset={coverAsset} settings={settings} />
+      <ServiceDetail
+        service={service}
+        coverAsset={coverAsset}
+        settings={settings}
+        categoryName={category?.name}
+      />
     </>
   );
 }

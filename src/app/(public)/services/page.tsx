@@ -45,10 +45,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ServicesPage() {
   const db = getDataService();
-  const [services, settings] = await Promise.all([
+  const [services, settings, categories] = await Promise.all([
     db.services.listPublished(),
     db.settings.get(),
+    db.categories.list(),
   ]);
+
+  const categoryNames = Object.fromEntries(categories.map((c) => [c.id, c.name]));
 
   // Resolve cover images for any services that have media_asset_id set
   const coverIds = services
@@ -74,7 +77,7 @@ export default async function ServicesPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
       />
       <ServicesHero />
-      <ServicesGrid services={services} coverMedia={coverMedia} />
+      <ServicesGrid services={services} coverMedia={coverMedia} categoryNames={categoryNames} />
     </>
   );
 }

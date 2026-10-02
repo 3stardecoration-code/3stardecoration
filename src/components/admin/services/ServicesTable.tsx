@@ -1,16 +1,24 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import Link from "next/link";
 import { reorderServices, trashService } from "@/app/actions/admin/services";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import type { Service } from "@/lib/domain";
+import type { Category, Service } from "@/lib/domain";
 
-export function ServicesTable({ services: initial }: { services: Service[] }) {
+export function ServicesTable({
+  services: initial,
+  categories = [],
+}: {
+  services: Service[];
+  categories?: Category[];
+}) {
   const [services, setServices] = useState(initial);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  const catById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 
   function handleDrop(targetId: string) {
     if (!dragId || dragId === targetId) return;
@@ -63,28 +71,41 @@ export function ServicesTable({ services: initial }: { services: Service[] }) {
             <tr>
               <th className="w-8 px-3 py-3" />
               <th className="px-3 py-3 font-medium">Service</th>
+              <th className="px-3 py-3 font-medium">Category</th>
               <th className="px-3 py-3 font-medium">Status</th>
               <th className="px-3 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {services.map((service) => (
-              <tr
-                key={service.id}
-                draggable
-                onDragStart={() => setDragId(service.id)}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => handleDrop(service.id)}
-                className={`transition-colors hover:bg-gray-50 ${dragId === service.id ? "opacity-40" : ""}`}
-              >
-                <td className="cursor-grab px-3 py-3 text-gray-300 active:cursor-grabbing">⠿</td>
-                <td className="px-3 py-3">
-                  <p className="font-medium text-gray-900">{service.title}</p>
-                  <p className="text-xs text-gray-400">/{service.slug}</p>
-                </td>
-                <td className="px-3 py-3">
-                  <StatusBadge status={service.workflow_status} />
-                </td>
+            {services.map((service) => {
+              const category = service.category_id ? catById.get(service.category_id) : null;
+
+              return (
+                <tr
+                  key={service.id}
+                  draggable
+                  onDragStart={() => setDragId(service.id)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => handleDrop(service.id)}
+                  className={`transition-colors hover:bg-gray-50 ${dragId === service.id ? "opacity-40" : ""}`}
+                >
+                  <td className="cursor-grab px-3 py-3 text-gray-300 active:cursor-grabbing">⠿</td>
+                  <td className="px-3 py-3">
+                    <p className="font-medium text-gray-900">{service.title}</p>
+                    <p className="text-xs text-gray-400">/{service.slug}</p>
+                  </td>
+                  <td className="px-3 py-3">
+                    {category ? (
+                      <span className="inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800 border border-amber-200/50">
+                        {category.name}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
+                  </td>
+                  <td className="px-3 py-3">
+                    <StatusBadge status={service.workflow_status} />
+                  </td>
                 <td className="px-3 py-3 text-right">
                   <div className="flex items-center justify-end gap-4">
                     <Link href={`/admin/services/${service.id}`} className="font-medium text-gray-900 hover:underline">
@@ -100,7 +121,8 @@ export function ServicesTable({ services: initial }: { services: Service[] }) {
                   </div>
                 </td>
               </tr>
-            ))}
+            );
+          })}
           </tbody>
         </table>
       </div>

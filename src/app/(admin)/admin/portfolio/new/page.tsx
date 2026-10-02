@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getDataService } from "@/lib/services";
 import { createProject } from "@/app/actions/admin/projects";
+import { CategorySelectField } from "@/components/admin/CategorySelectField";
 
 export const dynamic = "force-dynamic";
 
@@ -27,16 +28,12 @@ export default async function NewProjectPage() {
             className="input mt-1.5"
           />
         </label>
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">Category</span>
-          <select name="category_id" required className="input mt-1.5">
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <CategorySelectField
+          categories={categories}
+          required={true}
+          allowNone={false}
+          selectedId={categories[0]?.id ?? ""}
+        />
         <button
           type="submit"
           className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-700"

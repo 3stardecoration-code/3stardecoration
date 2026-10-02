@@ -13,8 +13,9 @@ import type {
   NewMediaAsset,
   SortOrderEntry,
   HomepageSectionPatch,
+  CategoryPatch,
 } from "@/lib/repositories";
-import type { Enquiry, MediaAsset, NewEnquiry, Project, Service, Testimonial } from "@/lib/domain";
+import type { Category, Enquiry, MediaAsset, NewEnquiry, Project, Service, Testimonial } from "@/lib/domain";
 import * as fx from "./fixtures";
 
 const DEFAULT_PAGE_SIZE = 9;
@@ -211,8 +212,54 @@ export const mockDataService: DataService = {
     async list() {
       return [...fx.categories].sort((a, b) => a.sort_order - b.sort_order);
     },
-    async getBySlug(slug) {
+    async getById(id: string) {
+      return fx.categories.find((c) => c.id === id) ?? null;
+    },
+    async getBySlug(slug: string) {
       return fx.categories.find((c) => c.slug === slug) ?? null;
+    },
+    async create(input: {
+      name: string;
+      slug?: string;
+      description?: string | null;
+      cover_media_asset_id?: string | null;
+    }): Promise<Category> {
+      const id = `cat-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      let slug = input.slug ? slugify(input.slug) : slugify(input.name);
+      if (fx.categories.some((c) => c.slug === slug)) {
+        slug = `${slug}-${Date.now().toString().slice(-4)}`;
+      }
+      const newCat: Category = {
+        id,
+        name: input.name.trim(),
+        slug,
+        description: input.description ?? null,
+        sort_order: fx.categories.length + 1,
+        cover_media_asset_id: input.cover_media_asset_id ?? null,
+      };
+      fx.categories.push(newCat);
+      return newCat;
+    },
+    async update(id: string, patch: CategoryPatch): Promise<Category> {
+      const cat = fx.categories.find((c) => c.id === id);
+      if (!cat) throw new Error(`Category not found: ${id}`);
+      if (patch.slug && fx.categories.some((c) => c.id !== id && c.slug === patch.slug)) {
+        throw new Error(`Category slug already in use: ${patch.slug}`);
+      }
+      Object.assign(cat, patch);
+      return cat;
+    },
+    async delete(id: string): Promise<void> {
+      const idx = fx.categories.findIndex((c) => c.id === id);
+      if (idx !== -1) {
+        fx.categories.splice(idx, 1);
+      }
+    },
+    async reorder(order: SortOrderEntry[]): Promise<void> {
+      for (const { id, sort_order } of order) {
+        const cat = fx.categories.find((c) => c.id === id);
+        if (cat) cat.sort_order = sort_order;
+      }
     },
   },
 
@@ -246,14 +293,15 @@ export const mockDataService: DataService = {
     async getById(id: string) {
       return fx.services.find((s) => s.id === id) ?? null;
     },
-    async create(input: { title: string }): Promise<Service> {
-      const id = `svc-${Date.now()}`;
+    async create(input: { title: string; category_id?: string | null }): Promise<Service> {
+      const id = `svc-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
       let slug = slugify(input.title);
       if (fx.services.some((s) => s.slug === slug && !s.deleted_at)) slug = `${slug}-${id.slice(-5)}`;
       const service: Service = {
         id,
         title: input.title,
         slug,
+        category_id: input.category_id ?? null,
         short_description: null,
         description: null,
         icon: null,

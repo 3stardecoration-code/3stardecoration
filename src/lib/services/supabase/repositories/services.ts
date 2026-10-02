@@ -7,6 +7,15 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
+function mapService(row: Record<string, unknown> | null): Service | null {
+  if (!row) return null;
+  const svc = row as unknown as Service;
+  return {
+    ...svc,
+    category_id: (row.category_id as string | null) ?? null,
+  };
+}
+
 export const serviceRepository: ServiceRepository = {
   async listPublished(): Promise<Service[]> {
     const supabase = createSupabaseAnonClient();
@@ -17,7 +26,7 @@ export const serviceRepository: ServiceRepository = {
       .is("deleted_at", null)
       .order("sort_order", { ascending: true });
     if (error) throw error;
-    return (data ?? []) as Service[];
+    return (data ?? []).map((r) => mapService(r as Record<string, unknown>)!) as Service[];
   },
 
   async getBySlug(slug: string): Promise<Service | null> {
@@ -30,7 +39,7 @@ export const serviceRepository: ServiceRepository = {
       .is("deleted_at", null)
       .maybeSingle();
     if (error) throw error;
-    return (data as Service | null) ?? null;
+    return mapService(data as Record<string, unknown> | null);
   },
 
   // --- admin (write) ---
@@ -42,7 +51,7 @@ export const serviceRepository: ServiceRepository = {
       .is("deleted_at", null)
       .order("sort_order", { ascending: true });
     if (error) throw error;
-    return (data ?? []) as Service[];
+    return (data ?? []).map((r) => mapService(r as Record<string, unknown>)!) as Service[];
   },
 
   async listTrash(): Promise<Service[]> {
@@ -53,17 +62,17 @@ export const serviceRepository: ServiceRepository = {
       .not("deleted_at", "is", null)
       .order("deleted_at", { ascending: false });
     if (error) throw error;
-    return (data ?? []) as Service[];
+    return (data ?? []).map((r) => mapService(r as Record<string, unknown>)!) as Service[];
   },
 
   async getById(id: string): Promise<Service | null> {
     const supabase = createSupabaseServiceClient();
     const { data, error } = await supabase.from("services").select("*").eq("id", id).maybeSingle();
     if (error) throw error;
-    return (data as Service | null) ?? null;
+    return mapService(data as Record<string, unknown> | null);
   },
 
-  async create(input: { title: string }): Promise<Service> {
+  async create(input: { title: string; category_id?: string | null }): Promise<Service> {
     const supabase = createSupabaseServiceClient();
     let slug = input.title
       .toLowerCase()
@@ -78,20 +87,34 @@ export const serviceRepository: ServiceRepository = {
       .maybeSingle();
     if (existing) slug = `${slug}-${Date.now().toString().slice(-5)}`;
 
-    const { data, error } = await supabase
+    const insertPayload: Record<string, unknown> = {
+      title: input.title,
+      slug,
+      sort_order: 0,
+      workflow_status: "draft",
+      robots_index: true,
+      robots_follow: true,
+    };
+    if (input.category_id) {
+      insertPayload.category_id = input.category_id;
+    }
+
+    let { data, error } = await supabase
       .from("services")
-      .insert({
-        title: input.title,
-        slug,
-        sort_order: 0,
-        workflow_status: "draft",
-        robots_index: true,
-        robots_follow: true,
-      })
+      .insert(insertPayload)
       .select("*")
       .single();
+
+    // Fallback if category_id column does not exist yet
+    if (error && error.code === "42703" && "category_id" in insertPayload) {
+      delete insertPayload.category_id;
+      const retry = await supabase.from("services").insert(insertPayload).select("*").single();
+      data = retry.data;
+      error = retry.error;
+    }
+
     if (error) throw error;
-    return data as Service;
+    return mapService(data as Record<string, unknown>)!;
   },
 
   async update(id: string, patch: ServicePatch): Promise<Service> {
@@ -121,9 +144,18 @@ export const serviceRepository: ServiceRepository = {
       updatePayload.published_at = nowIso();
     }
 
-    const { data, error } = await supabase.from("services").update(updatePayload).eq("id", id).select("*").single();
+    let { data, error } = await supabase.from("services").update(updatePayload).eq("id", id).select("*").single();
+
+    // Fallback if category_id column does not exist yet
+    if (error && error.code === "42703" && "category_id" in updatePayload) {
+      delete updatePayload.category_id;
+      const retry = await supabase.from("services").update(updatePayload).eq("id", id).select("*").single();
+      data = retry.data;
+      error = retry.error;
+    }
+
     if (error) throw error;
-    return data as Service;
+    return mapService(data as Record<string, unknown>)!;
   },
 
   async softDelete(id: string): Promise<void> {
@@ -152,16 +184,21 @@ export const serviceRepository: ServiceRepository = {
 
   async emptyTrash(): Promise<number> {
     const supabase = createSupabaseServiceClient();
-    const { data, error } = await supabase.from("services").delete().not("deleted_at", "is", null).select("id");
+    const { data, error } = await supabase
+      .from("services")
+      .delete()
+      .not("deleted_at", "is", null)
+      .select("id");
     if (error) throw error;
-    return (data ?? []).length;
+    return data?.length ?? 0;
   },
 
   async reorder(order: SortOrderEntry[]): Promise<void> {
     const supabase = createSupabaseServiceClient();
-    for (const { id, sort_order } of order) {
-      const { error } = await supabase.from("services").update({ sort_order }).eq("id", id);
-      if (error) throw error;
-    }
+    await Promise.all(
+      order.map(({ id, sort_order }) =>
+        supabase.from("services").update({ sort_order }).eq("id", id)
+      )
+    );
   },
 };

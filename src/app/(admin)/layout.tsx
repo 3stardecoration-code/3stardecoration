@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import { getAuthService, getDataService } from "@/lib/services";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminNavProvider } from "@/components/admin/AdminNavContext";
+import { AdminProgressBar } from "@/components/admin/AdminProgressBar";
 
 export const metadata = {
   title: "3 Star CMS",
@@ -26,6 +28,9 @@ export default async function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-gray-50 font-sans text-gray-900">
+      <Suspense fallback={null}>
+        <AdminProgressBar />
+      </Suspense>
       {session ? (
         <AdminNavProvider>
           <AdminSidebar logoUrl={logoUrl} />

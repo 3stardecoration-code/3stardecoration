@@ -208,20 +208,21 @@ export const galleryItems: GalleryItem[] = projectCoverIds.slice(0, 9).map((medi
   sort_order: i,
 }));
 
-const SERVICE_SEED: Array<{ title: string; blurb: string; asset: string }> = [
-  { title: "Wedding Decoration", blurb: "Full-scale design for the one day you'll replay forever.", asset: "wedding-02" },
-  { title: "Reception Styling", blurb: "Tablescapes and lighting that keep the evening glowing.", asset: "reception-02" },
-  { title: "Engagement Setups", blurb: "An intimate scene for the moment you say yes.", asset: "floral-04" },
-  { title: "Birthday & Baby Shower", blurb: "Playful, considered styling for milestones big and small.", asset: "floral-02" },
+const SERVICE_SEED: Array<{ title: string; blurb: string; asset: string; category_id: string | null }> = [
+  { title: "Wedding Decoration", blurb: "Full-scale design for the one day you'll replay forever.", asset: "wedding-02", category_id: "cat-wedding" },
+  { title: "Reception Styling", blurb: "Tablescapes and lighting that keep the evening glowing.", asset: "reception-02", category_id: "cat-reception" },
+  { title: "Engagement Setups", blurb: "An intimate scene for the moment you say yes.", asset: "floral-04", category_id: "cat-engagement" },
+  { title: "Birthday & Baby Shower", blurb: "Playful, considered styling for milestones big and small.", asset: "floral-02", category_id: "cat-birthday" },
 ];
 
-export const services: Service[] = SERVICE_SEED.map(({ title, blurb, asset }, i) => {
+export const services: Service[] = SERVICE_SEED.map(({ title, blurb, asset, category_id }, i) => {
   const mediaId = `media-svc-${i + 1}`;
   mediaAssets.push(demoImg(mediaId, asset, `${title} by 3 Star Decoration`));
   return {
     id: `svc-${i + 1}`,
     title,
     slug: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    category_id,
     short_description: blurb,
     description: `<p>${blurb}</p><p>Every detail — florals, drapery, lighting, and staging — designed as one cohesive scene, not a checklist of add-ons.</p>`,
     icon: "sparkles",
